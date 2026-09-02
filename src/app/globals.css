@@ -1,0 +1,690 @@
+@import "tailwindcss";
+
+/* Tailwind v4 reads theme from CSS, NOT tailwind.config.ts — the legacy config's
+ * color map has been dead since the v4 migration, so custom color utilities
+ * (bg-accent, text-success, bg-danger/10, …) silently didn't exist and every
+ * consumer (components/ui/Button, Badge, ChatRail, ConfirmCard) rendered
+ * colorless. This block restores exactly the color tokens; `inline` keeps them
+ * pointing at the runtime-adjustable :root vars (accent hue rotation, dark
+ * mode). Spacing/radius/font mappings from the legacy config are deliberately
+ * NOT restored here — that changes geometry app-wide and needs its own pass
+ * (see IN_FLIGHT).
+ */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-muted: var(--bg-muted);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-hover: var(--bg-hover);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-muted: var(--accent-muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+}
+
+/* OKLCH semantic tokens, dark-mode-first
+ *
+ * --hue is the runtime-adjustable accent hue (0–360°). Default 274 = indigo.
+ * Settings → Aesthetic lets the user override it; ThemeProvider writes the
+ * chosen value to document.documentElement at mount.
+ */
+:root {
+  /* Accent hue — user-adjustable at runtime */
+  --hue: 274;
+
+  /* Surfaces */
+  --bg:           oklch(0.12 0.012 264);
+  --bg-muted:     oklch(0.16 0.012 264);
+  --bg-subtle:    oklch(0.18 0.012 264);
+  --bg-elevated:  oklch(0.20 0.015 264);
+  --bg-hover:     oklch(0.22 0.015 264);
+
+  /* Text */
+  --fg:           oklch(0.93 0.01 264);
+  --fg-muted:     oklch(0.66 0.03 264);
+  --fg-subtle:    oklch(0.50 0.02 264);
+
+  /* Borders */
+  --border:       oklch(0.28 0.02 264);
+  --border-muted: oklch(0.22 0.015 264);
+
+  /* Accent — derived from --hue */
+  --accent:        oklch(0.62 0.18 var(--hue));
+  --accent-bright: oklch(0.70 0.19 var(--hue));
+  --accent-fg:     oklch(0.98 0 0);
+  --accent-muted:  oklch(0.32 0.10 var(--hue));
+
+  /* Semantic */
+  --success: oklch(0.72 0.14 165);
+  --warning: oklch(0.78 0.14 75);
+  --danger:  oklch(0.65 0.17 15);
+  --info:    oklch(0.70 0.13 230);
+  /* Sixth distinct hue — the 5 semantic colors couldn't cover 7 memory
+   * banks (therapy + health both landed on --danger). */
+  --violet:  oklch(0.70 0.13 300);
+
+
+  /* Shadows */
+  --shadow-resting:  0 1px 2px oklch(0 0 0 / 0.06);
+  --shadow-floating: 0 8px 24px oklch(0 0 0 / 0.18);
+  --shadow-modal:    0 24px 48px oklch(0 0 0 / 0.32);
+
+  /* Radii */
+  --radius-sm:   6px;   /* buttons, inputs */
+  --radius:      10px;  /* cards, panels */
+  --radius-lg:   12px;  /* modals, palette */
+  --radius-full: 9999px;
+
+  /* Fixed two-row mobile navigation height. Surfaces and portalled sheets use
+   * one token so a future nav redesign cannot leave stale per-page offsets. */
+  --mobile-tabbar-reserve: 112px;
+
+  /* Height of the sticky Topbar. Pages that pin themselves to the remaining
+   * viewport (/chat shell, the people star-map) and anything sticking to the
+   * top of the content area read this. It had been referenced with a `52px`
+   * fallback and never actually declared — true on desktop, 3px short on
+   * phones, where the icon-only search button makes the bar taller (the
+   * mobile block below overrides it). `.topbar` is floored to the same value
+   * so the token can't silently drift from the bar it describes. */
+  --topbar-h: 52px;
+
+  /* Typography — Geist via geist/font, Newsreader via next/font/google.
+   * The user's call (2026-07-04): --font-serif deliberately points at the SANS
+   * stack. For months a font-variable scoping bug made "serif" text render as
+   * italic Geist; when the bug was fixed and true Newsreader appeared, he
+   * preferred the look he was used to. Serif-styled passages stay italic Geist
+   * by design — the loaded Newsreader variable remains available if this ever
+   * reverses. */
+  --font-sans:  'Geist', -apple-system, system-ui, sans-serif;
+  --font-serif: 'Geist', -apple-system, system-ui, sans-serif;
+  --font-mono:  'Geist Mono', 'IBM Plex Mono', monospace;
+
+  /* Finance category color system (redesign) — shared lightness/chroma, hue
+   * varies. A category keeps its color everywhere: chart segments, tx dots,
+   * budget bars, treemap tiles. --cat-7 is the muted catch-all (other). */
+  --cat-1: oklch(0.70 0.13 var(--hue));
+  --cat-2: oklch(0.70 0.13 165);
+  --cat-3: oklch(0.70 0.13 75);
+  --cat-4: oklch(0.70 0.13 230);
+  --cat-5: oklch(0.70 0.13 300);
+  --cat-6: oklch(0.70 0.13 15);
+  --cat-7: oklch(0.55 0.02 264);
+}
+
+:root.light {
+  --bg:           oklch(0.99 0.003 264);
+  --bg-muted:     oklch(0.97 0.006 264);
+  --bg-subtle:    oklch(0.97 0.005 264);
+  --bg-elevated:  oklch(1 0 0);
+  --bg-hover:     oklch(0.95 0.008 264);
+  --fg:           oklch(0.20 0.02 264);
+  --fg-muted:     oklch(0.45 0.03 264);
+  --fg-subtle:    oklch(0.60 0.02 264);
+  --border:       oklch(0.90 0.01 264);
+  --border-muted: oklch(0.94 0.008 264);
+  --accent:        oklch(0.55 0.17 var(--hue));
+  --accent-bright: oklch(0.60 0.18 var(--hue));
+  --accent-fg:     oklch(0.98 0 0);
+  --accent-muted:  oklch(0.90 0.05 var(--hue));
+  --success: oklch(0.55 0.14 165);
+  --warning: oklch(0.65 0.14 75);
+  --danger:  oklch(0.55 0.17 15);
+  --info:    oklch(0.55 0.13 230);
+  --violet:  oklch(0.55 0.13 300);
+  --shadow-resting:  0 1px 3px oklch(0 0 0 / 0.08);
+  --shadow-floating: 0 8px 24px oklch(0 0 0 / 0.10);
+  --shadow-modal:    0 24px 48px oklch(0 0 0 / 0.14);
+  /* Finance category colors — same values as dark for now (fine per handoff). */
+  --cat-1: oklch(0.70 0.13 var(--hue));
+  --cat-2: oklch(0.70 0.13 165);
+  --cat-3: oklch(0.70 0.13 75);
+  --cat-4: oklch(0.70 0.13 230);
+  --cat-5: oklch(0.70 0.13 300);
+  --cat-6: oklch(0.70 0.13 15);
+  --cat-7: oklch(0.55 0.02 264);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-color: var(--border-muted);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100dvh;
+}
+
+/* Scrollbars — subtle, matches theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-subtle);
+}
+
+/* Typography utilities */
+.font-serif    { font-family: var(--font-serif); }
+.font-mono     { font-family: var(--font-mono); }
+.tabular-nums  { font-variant-numeric: tabular-nums; }
+.text-balance  { text-wrap: balance; }
+
+/* Focus rings */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Motion: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Skeleton loading pulse */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Page-route fade-in animation (mounted via key={route} per prototype app.jsx) */
+@keyframes page-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-fade {
+  animation: page-fade 220ms ease-out;
+}
+
+/* Attention pulse for a chip that a move requires (e.g. To-Do needs a due
+   date). Two quick warning-coloured rings, then settles. */
+@keyframes chip-flash {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  30%, 70% {
+    box-shadow: 0 0 0 2px var(--warning);
+    background: color-mix(in oklch, var(--warning) 16%, transparent);
+  }
+}
+.chip-flash {
+  animation: chip-flash 0.7s ease-in-out 2;
+  border-radius: var(--radius-sm);
+}
+
+/* Routine bar just hit 100% — a quick celebratory pop + green glow so
+   finishing a routine feels rewarding. */
+@keyframes routine-pop {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+  35%  {
+    transform: scale(1.012);
+    box-shadow: 0 0 0 2px var(--success),
+                0 10px 26px -10px color-mix(in oklch, var(--success) 55%, transparent);
+  }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+.routine-pop {
+  animation: routine-pop 600ms ease-out;
+}
+
+/* Generic rotation — the goal page's "estimating…" refresh icon. */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Goal progress % just changed — quick scale+accent pop so progress is felt.
+   Applied via key-remount on the value, so it replays on every change. */
+@keyframes goal-pct-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); color: var(--accent); }
+  100% { transform: scale(1); }
+}
+.goal-pct-pop {
+  display: inline-block;
+  animation: goal-pct-pop 450ms ease-out;
+}
+
+/* ===== Shared page layout primitives (prototype: app.jsx / pages-styles.html) ===== */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 36px 64px;
+  width: 100%;
+}
+
+/* Keeps `--topbar-h` honest — the bar is styled inline in Topbar.tsx, and
+   anything measuring from it (a sticky offset, a pinned page height) is wrong
+   the moment the two disagree. A floor, not a fixed height: content that
+   genuinely needs more room still gets it. */
+.topbar {
+  box-sizing: border-box;
+  min-height: var(--topbar-h);
+}
+
+/* Nav-rail peek clearance (#1034): IconRail hover-expands as a floating
+ * overlay — it only reflows the layout via its spacer when pinned (see
+ * IconRail.tsx). Without this, the overlay covers page content on hover.
+ * While peeking, slide the whole content column right by the rail's growth
+ * (WIDTH_EXPANDED 224 − WIDTH_COLLAPSED 56 = 168px), matching the rail's own
+ * 160ms ease, so every page pushes over like pinned already does. Applied
+ * once here so all pages inherit it — don't re-add a page-local copy. */
+.app-main {
+  transition: padding-left 160ms ease;
+}
+:root[data-rail-peek='1'] .app-main {
+  padding-left: 168px;
+}
+
+/* A task row flashes briefly at its new position after a drag-reorder/move,
+   so it's obvious the task actually changed places. One-shot, ~0.9s. */
+@keyframes task-flash {
+  0%   { background-color: color-mix(in oklch, var(--accent) 26%, transparent); }
+  100% { background-color: transparent; }
+}
+.task-just-moved {
+  animation: task-flash 900ms ease-out;
+  border-radius: 8px;
+}
+
+/* ===== Mobile overlay (2026-06-11) ====================================== */
+/* The app is inline-styled, so responsive behavior rides as a small class
+   overlay — classes need !important to beat inline styles. The user interacts
+   over mobile a lot; the shell already cooperates (56px icon rail, ChatRail
+   collapsed to 0, viewport meta), so this is page-level: tighter padding
+   and side-rail layouts stacking into rows. */
+/* The icon rail scrolls when the nav is taller than a short window, but the
+   scrollbar dominates the 56px collapsed rail and looks sloppy. Hide it; the
+   list still scrolls. */
+.rail-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.rail-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Floating timer pill: sits 16px off the bottom on desktop; a mobile media
+   query below lifts it clear of the bottom tab bar. */
+.timer-bubble {
+  bottom: 16px;
+}
+
+/* Floating unanchored-confirmations tray (issue #1695): same bottom-offset
+   treatment as .timer-bubble, opposite (left) corner so the two never
+   overlap. */
+.confirm-tray {
+  bottom: 16px;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 18px 14px 56px;
+  }
+
+  /* Mobile chrome: the 56px rail (and its layout spacer) give way to a bottom
+     tab bar; Notifications moves to the top-bar bell. */
+  .icon-rail,
+  .icon-rail-spacer {
+    display: none !important;
+  }
+  .mobile-tabbar {
+    display: flex !important;
+  }
+  .topbar-bell {
+    display: inline-flex !important;
+  }
+  /* The breadcrumb search collapses to an icon-only button on phones. */
+  .topbar-search {
+    padding: 6px !important;
+  }
+  .topbar-search span {
+    display: none !important;
+  }
+  /* Clear the fixed bottom nav so the last content can scroll above it. The
+     two-row "Design A" bar (segment switch + pill row) is taller than the old
+     single-row tab bar, hence the larger reserve. */
+  .app-main {
+    padding-bottom: calc(var(--mobile-tabbar-reserve) + env(safe-area-inset-bottom)) !important;
+  }
+  /* Lift the floating timer pill above the tab bar so it doesn't cover the
+     bottom nav (the tab bar is ~72px tall + the safe-area inset). */
+  .timer-bubble {
+    bottom: calc(72px + env(safe-area-inset-bottom) + 12px) !important;
+  }
+  /* Same lift for the confirmations tray. */
+  .confirm-tray {
+    bottom: calc(72px + env(safe-area-inset-bottom) + 12px) !important;
+  }
+
+  /* The slide-out chat rail is desktop-only; on mobile /chat is a full page
+     reachable from the tab bar, so hide the rail and its toggle chevron. */
+  .chat-rail {
+    display: none !important;
+  }
+  /* The chat shell is height-pinned to the viewport on desktop; on mobile let
+     it flex inside the padded app-main so the composer sits above the bottom
+     tab bar instead of colliding with it. */
+  .chat-shell {
+    height: auto !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Consequence of the line above: the feed isn't its own scroll container
+     here, the DOCUMENT scrolls — so the New chat / History header scrolled off
+     the top and starting a new chat from deep in a long conversation meant
+     scrolling all the way back up. Stick it under the Topbar instead. The
+     Topbar is also sticky at top:0 with a higher z-index, so this offsets by
+     its height rather than fighting it for the same 0. */
+  .chat-top-header {
+    position: sticky;
+    top: var(--topbar-h);
+    z-index: 10;
+  }
+
+  /* Same fix, other end: scrolling up through a conversation left the input
+     off the bottom of the screen. It sticks above the tab bar — `.app-main`
+     already reserves that strip, so this offset matches the padding the feed
+     is scrolling within. Opaque, because messages now pass underneath it. */
+  .chat-composer {
+    position: sticky;
+    bottom: calc(var(--mobile-tabbar-reserve) + env(safe-area-inset-bottom));
+    z-index: 10;
+    background: var(--bg);
+  }
+
+  /* iOS Safari zooms the whole page when a focused input's text is under 16px,
+     and never zooms back out — the composer's 14px was enough to trigger it, so
+     every long message was typed into a page that had silently scaled up and
+     started scrolling sideways. 16px is the threshold, not a taste call. */
+  .chat-input {
+    font-size: 16px !important;
+  }
+
+  /* Enter no longer sends here (see /chat page.tsx), which makes ↑ the only way
+     out — so it gets a thumb-sized target instead of the desktop 32px. */
+  .chat-send-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* The icon-only search button makes the bar taller than the 52px it is on
+     desktop; the sticky offset above has to match or the header tucks under
+     the Topbar. */
+  :root {
+    --topbar-h: 55px;
+  }
+
+  /* Today: the habits|agenda split stacks; the stat strip halves.
+     minmax(0, 1fr) (not plain 1fr) lets the single stacked column — and each
+     stat half — shrink below its content's intrinsic width. A plain 1fr track
+     floors at min-content, so one long calendar title / stat number kept the
+     column wider than the phone and scrolled the whole page sideways (same
+     class of bug the .fin-hero fix below solves). */
+  .today-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 20px !important;
+  }
+  .today-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Goals momentum grid stacks to one column; the featured card un-spans. */
+  .goals-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .goals-grid > * {
+    grid-column: auto !important;
+  }
+
+  /* Grid-based two-column shells (Calendar, Memory's people/health grids)
+     collapse to one column. Inert on the flex .page-cols users (Settings,
+     Notes, Memory root), which the flex-direction rule above already stacks. */
+  .page-cols {
+    grid-template-columns: 1fr !important;
+  }
+  /* Calendar sidebar: mini-month + insights sit side-by-side once stacked.
+     (Pending invites is no longer here — it's a full-width section below the
+     calendar body.) */
+  .cal-sidebar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+  /* Finance shell is a flex item whose data rows (recurring list, category
+     breakdown) have a wide min-content; min-width:auto kept the shell wider
+     than the viewport and scrolled the whole page sideways. Pin it to the
+     viewport so the inner content reflows to fit. */
+  .fin-shell {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  /* Finance net-worth hero (number+breakdown | chart) stacks to one column on
+     phones. minmax(0,1fr) (not 1fr) lets the track shrink below its content's
+     intrinsic width — the desktop layout's fixed 280px left column otherwise
+     floors the row and pushes the chart off-viewport, scrolling the page
+     sideways (class name updated for the #660 redesign; was .fin-hero). */
+  .fin-hero-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .fin-hero-grid > * {
+    min-width: 0 !important;
+  }
+
+  /* Expenses "by category | heatmap/merchants/trends" split stacks to one
+     column on phones — same minmax(0,1fr) fix as the hero grid above. */
+  .fin-overview-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .fin-overview-grid > * {
+    min-width: 0 !important;
+  }
+
+  /* Investments keeps four compact stats on desktop; phones get a readable
+     2×2 strip and the strategy/history pair stacks. Holdings tables retain a
+     local horizontal scroller instead of widening the whole finance page. */
+  .fin-investment-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .fin-investment-split {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .fin-investment-stats > *,
+  .fin-investment-split > * {
+    min-width: 0 !important;
+  }
+
+  /* Insight banner: let the action button wrap below the text instead of being
+     shoved off the right edge. */
+  .fin-insight {
+    flex-wrap: wrap !important;
+  }
+
+  /* Movers rows on phones: drop the "was → " amount, keep current + delta.
+     Three mono numbers per row don't fit 414px alongside the category label. */
+  .fin-mover-before {
+    display: none !important;
+  }
+
+  /* Notes layout is a JS flex masonry (see Masonry in notes/page.tsx) — it
+     measures width and lays out real min-width:0 columns, so there's no
+     mobile multicol/grid override to do here. */
+
+  /* The note editor overlay goes near-full-width on phones. */
+  .note-editor-backdrop {
+    padding: 16px 12px calc(16px + env(safe-area-inset-bottom)) !important;
+    align-items: flex-start !important;
+  }
+
+  /* Habit cards drop from the half-width 2-col grid to one column. The
+     desktop `grid-auto-rows: 1fr` (uniform-height half tiles) would
+     over-stretch a single column, so reset it to natural row heights here. */
+  .habits-grid {
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: auto !important;
+  }
+
+  /* Vice cards (#818's half/full split, mirroring habits-grid) drop from
+     the half-width 2-col grid to one column — same auto-rows reset. */
+  .vices-grid {
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: auto !important;
+  }
+
+  /* Side-rail page layouts (e.g. /memory's bank rail + content) stack. */
+  .page-cols {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* When .page-cols stacks, its align-items:flex-start would size children to
+     their CONTENT width (overflowing a narrow phone). The notes content column
+     must fill the viewport width so its masonry can shrink to fit. */
+  .notes-main {
+    align-self: stretch !important;
+    width: 100% !important;
+  }
+
+  /* The guide's 23-section rail would be a wall of chips on a phone — hide
+     it; the guide's own Table of Contents section is the mobile nav. */
+  .guide-rail {
+    display: none !important;
+  }
+
+  /* Same reason as `.notes-main` above: stacked, the guide article was sized
+     to its widest table and hung off the right edge of the phone. Filling the
+     column also gives its tables a definite width to scroll against. */
+  .guide-md {
+    align-self: stretch !important;
+    width: 100% !important;
+  }
+
+  /* A vertical sticky rail becomes a wrapping chip row above the content. */
+  .side-rail {
+    position: static !important;
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+  .side-rail > * {
+    width: auto !important;
+  }
+  /* Rail headers ("Banks") are noise once the rail is a chip row. */
+  .side-rail-label {
+    display: none !important;
+  }
+  /* The rail footer (e.g. the therapy toggle) loses its bottom-anchor. */
+  .side-rail-footer {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+  }
+
+  .topbar {
+    padding: 10px 14px !important;
+  }
+
+  /* Tab/button rows (and the routine step chain) scroll sideways instead of
+     overflowing the viewport. Hide the scrollbar — a visible bar under the
+     row reads as broken; the row still scrolls by touch/trackpad. */
+  .scroll-x {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-x::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  /* Card header: title/description column | action-button sidebar.
+     The sidebar's flexShrink:0 + 260px cap doesn't shrink on phones, so it
+     squeezed the title/description into a sliver a few px wide — badges and
+     chips overflowed it and the name wrapped illegibly (#1170). Force the
+     action row onto its own full-width line below the title instead. */
+  .skills-card-head {
+    flex-wrap: wrap !important;
+  }
+  .skills-card-actions {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+
+/* Section labels with leading number + accent rule */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  margin: 0 0 12px;
+}
+.section-label .num {
+  color: var(--accent);
+  font-weight: 600;
+}
+.section-label .rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border-muted);
+}
+
+/* Voice toggle — hides serif-italic why-lines globally */
+.voice-low .why,
+.voice-low .ph-note,
+.voice-low .brief-note,
+.voice-low .vice-coachnote,
+.voice-low .gnote {
+  display: none;
+}
+
+/* /skills Versions panel rows — a bare mono line read as static text, so
+   nobody knew the rows were clickable (2026-07-29). Hover tint + the chevron
+   in the row give it button affordance without adding borders. */
+.skill-version-row:hover {
+  background: var(--bg-hover) !important;
+}

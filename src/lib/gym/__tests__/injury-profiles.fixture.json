@@ -1,0 +1,2639 @@
+{
+ "agility ladder|upper legs|quadriceps||body only|strength|stand and perform agility ladder.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "back squat|upper legs|quadriceps||barbell|strength|stand and perform back squat.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "balance board|lower legs|calves||body only|strength|stand and perform balance board.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "calves": [
+    "primary"
+   ],
+   "feet": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_legs": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "balance board|lower legs|calves||body only|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "calves": [
+    "primary"
+   ],
+   "feet": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_legs": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "barbell bench press|chest|chest||barbell|strength|lie on your back and perform barbell bench press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "supine",
+   "grip"
+  ]
+ },
+ "barbell bench press|chest|chest||barbell|strength|lie on your back.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "supine",
+   "grip"
+  ]
+ },
+ "barbell bench press|chest|chest|||strength|lie on your back and perform barbell bench press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ]
+  },
+  "traits": [
+   "supine"
+  ]
+ },
+ "barbell clean and press|upper legs|quadriceps||barbell|strength|stand and perform barbell clean and press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "barbell hip thrust|upper legs|glutes||barbell|strength|lie on your back and drive through your heels.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "glutes": [
+    "primary"
+   ],
+   "hips": [
+    "articulation",
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "contact"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "supine"
+  ]
+ },
+ "barbell row|back|middle back||barbell|strength|stand and perform barbell row.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "mid_back": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "articulation",
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "barbell row|back|middle back||barbell|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "mid_back": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "articulation",
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "barbell squat|upper legs|quadriceps||barbell|strength|stand and perform barbell squat.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "barbell squat|upper legs|quadriceps||barbell|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "barbell squat||quads||barbell|strength|stand and perform barbell squat.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "bench press (dumbbell)|chest|chest||dumbbell|strength|lie on your back and perform bench press (dumbbell).": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "supine",
+   "grip"
+  ]
+ },
+ "box jump|upper legs|quadriceps||body only|strength|stand and perform box jump.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing",
+    "impact"
+   ],
+   "feet": [
+    "weight_bearing",
+    "impact"
+   ],
+   "hips": [
+    "stabilizer",
+    "impact"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer",
+    "impact"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer",
+    "impact"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer",
+    "impact"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing",
+   "impact"
+  ]
+ },
+ "burpee|upper legs|quadriceps|||strength|stand and perform burpee.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing",
+    "impact"
+   ],
+   "feet": [
+    "weight_bearing",
+    "impact"
+   ],
+   "hips": [
+    "stabilizer",
+    "impact"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer",
+    "impact"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer",
+    "impact"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer",
+    "impact"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing",
+   "impact"
+  ]
+ },
+ "burpee|||||strength|stand and perform burpee.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing",
+    "impact"
+   ],
+   "feet": [
+    "weight_bearing",
+    "impact"
+   ],
+   "hips": [
+    "stabilizer",
+    "impact"
+   ],
+   "knees": [
+    "stabilizer",
+    "impact"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer",
+    "impact"
+   ],
+   "spine": [
+    "stabilizer",
+    "impact"
+   ]
+  },
+  "traits": [
+   "standing",
+   "impact"
+  ]
+ },
+ "cable fly|chest|chest||cable|strength|stand and perform cable fly.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "cable fly|chest|chest||cable|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "cable pullover|back|lats||cable|strength|sit in the machine.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "contact"
+   ],
+   "lats": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "seated",
+   "grip"
+  ]
+ },
+ "chest|chest|chest||barbell|strength|stand and perform chest.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "dumbbell bench press|chest|chest||dumbbell|strength|lie on your back and perform dumbbell bench press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "supine",
+   "grip"
+  ]
+ },
+ "dumbbell bench press|chest|chest|||strength|lie on your back and perform dumbbell bench press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ]
+  },
+  "traits": [
+   "supine"
+  ]
+ },
+ "dumbbell bicep curl||biceps||dumbbell|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "biceps": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "upper_arms": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "dumbbell chest fly|chest|chest||dumbbell|strength|lie on your back.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "supine",
+   "grip"
+  ]
+ },
+ "dumbbell lateral raise|shoulders|shoulders||dumbbell|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "delts": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "dumbbell snatch|shoulders|shoulders||dumbbell|strength|stand and perform dumbbell snatch.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "delts": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "farmer's carry|lower arms|forearms||dumbbell|strength|stand and perform farmer's carry.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "elbows": [
+    "stabilizer"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "primary",
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "articulation",
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "fresh|chest|chest|||strength|lie on your back.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ]
+  },
+  "traits": [
+   "supine"
+  ]
+ },
+ "front squat|upper legs|quadriceps||barbell|strength|stand and perform front squat.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "hamstrings|upper legs|hamstrings||barbell|strength|stand and perform hamstrings.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hamstrings": [
+    "primary"
+   ],
+   "hips": [
+    "articulation",
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "hip adductor (machine)|upper legs|adductors||machine|strength|sit and perform hip adductor (machine).": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "groin": [
+    "primary"
+   ],
+   "hips": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": []
+ },
+ "incline dumbbell press|chest|chest||dumbbell|strength|lie on your back.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "supine",
+   "grip"
+  ]
+ },
+ "incline dumbbell press|chest|chest||dumbbell|strength|stand and perform incline dumbbell press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "kegels||abdominals|||strength|stand and perform kegels.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "abs": [
+    "primary"
+   ],
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "articulation",
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "kegels|||||strength|stand and perform kegels.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "lat pulldown|back|lats||cable|strength|sit in the machine.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "contact"
+   ],
+   "lats": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "seated",
+   "grip"
+  ]
+ },
+ "lat pulldown|back|lats||cable|strength|stand and perform lat pulldown.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lats": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "leg extension (machine)|upper legs|quadriceps||machine|strength|sit and perform leg extension (machine).": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "knees": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": []
+ },
+ "leg press||quads||machine|strength|stand and perform leg press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "lever rotary calf|lower legs|calves||machine|strength|stand and perform lever rotary calf.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "calves": [
+    "primary"
+   ],
+   "feet": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_legs": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "machine fly|chest|chest||machine|strength|stand and perform machine fly.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "old chest move|chest|chest||barbell|strength|stand and perform old chest move.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "pec deck|chest|chest||machine|strength|stand and perform pec deck.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "preacher curl|upper arms|biceps||barbell|strength|stand and perform preacher curl.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "biceps": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation",
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "upper_arms": [
+    "primary"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "push press|shoulders|shoulders||barbell|strength|stand and perform push press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "delts": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "quads|upper legs|quadriceps||barbell|strength|stand and perform quads.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "quick feet v. 2|upper legs|quadriceps||body only|strength|stand and perform quick feet v. 2.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "reverse curl|upper arms|biceps|forearms|barbell|strength|stand and perform reverse curl.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "biceps": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation",
+    "stabilizer"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "secondary",
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "shoulder_joint": [
+    "articulation",
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "upper_arms": [
+    "primary"
+   ],
+   "wrists": [
+    "articulation",
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "romanian deadlift|upper legs|hamstrings||barbell|strength|stand and perform romanian deadlift.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hamstrings": [
+    "primary"
+   ],
+   "hips": [
+    "articulation",
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "seated cable row|back|lats||cable|strength|sit in the machine.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "contact"
+   ],
+   "lats": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "seated",
+   "grip"
+  ]
+ },
+ "seated leg curl|upper legs|hamstrings||machine|strength|sit and perform seated leg curl.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "hamstrings": [
+    "primary"
+   ],
+   "hips": [
+    "articulation",
+    "contact"
+   ],
+   "knees": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "contact"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "seated"
+  ]
+ },
+ "seated overhead press|shoulders|shoulders||dumbbell|strength|sit and perform seated overhead press.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "delts": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "contact"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "seated",
+   "grip",
+   "overhead"
+  ]
+ },
+ "seated overhead press|shoulders|shoulders||dumbbell|strength|sit in the machine.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "delts": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "forearms": [
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "contact"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "grip"
+   ]
+  },
+  "traits": [
+   "seated",
+   "grip",
+   "overhead"
+  ]
+ },
+ "smith toe raise|lower legs|calves||smith machine|strength|stand and perform smith toe raise.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "calves": [
+    "primary"
+   ],
+   "feet": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_legs": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "sphinx||spine||body only|strength|stand and perform sphinx.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_back": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "stale|chest|chest|||strength|lie on your back.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ]
+  },
+  "traits": [
+   "supine"
+  ]
+ },
+ "standing calf raise|lower legs|calves||machine|strength|stand and perform standing calf raise.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "calves": [
+    "primary"
+   ],
+   "feet": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_legs": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "standing calves|lower legs|calves||body only|strength|stand and perform standing calves.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "calves": [
+    "primary"
+   ],
+   "feet": [
+    "articulation",
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "lower_legs": [
+    "primary"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "sumo deadlift (barbell)|upper legs|glutes||barbell|strength|stand and perform sumo deadlift (barbell).": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "glutes": [
+    "primary"
+   ],
+   "hips": [
+    "articulation",
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "sumo deadlift|upper legs|glutes||barbell|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "glutes": [
+    "primary"
+   ],
+   "hips": [
+    "articulation",
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "walking lunge|upper legs|quadriceps||body only|strength|stand and perform the movement.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "walking lunge|upper legs|quadriceps||body only|strength|stand and perform walking lunge.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "articulation",
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "quads": [
+    "primary"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "thighs": [
+    "primary"
+   ]
+  },
+  "traits": [
+   "standing"
+  ]
+ },
+ "wrist roller|lower arms|forearms||dumbbell|strength|stand and perform wrist roller.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "ankles": [
+    "weight_bearing"
+   ],
+   "elbows": [
+    "stabilizer"
+   ],
+   "feet": [
+    "weight_bearing"
+   ],
+   "forearms": [
+    "primary",
+    "grip"
+   ],
+   "hands": [
+    "grip"
+   ],
+   "hips": [
+    "stabilizer"
+   ],
+   "knees": [
+    "stabilizer"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "pelvis": [
+    "stabilizer"
+   ],
+   "spine": [
+    "stabilizer"
+   ],
+   "wrists": [
+    "articulation",
+    "grip"
+   ]
+  },
+  "traits": [
+   "standing",
+   "grip"
+  ]
+ },
+ "x|chest|chest|||strength|lie on your back.": {
+  "provenance": "catalog-derived",
+  "schemaVersion": 1,
+  "sites": {
+   "chest": [
+    "primary"
+   ],
+   "elbows": [
+    "articulation"
+   ],
+   "neck": [
+    "stabilizer"
+   ],
+   "ribs": [
+    "stabilizer",
+    "contact"
+   ],
+   "shoulder_joint": [
+    "articulation"
+   ],
+   "spine": [
+    "stabilizer",
+    "contact"
+   ]
+  },
+  "traits": [
+   "supine"
+  ]
+ }
+}

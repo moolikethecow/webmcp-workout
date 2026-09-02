@@ -130,7 +130,14 @@ export async function GET(req: NextRequest) {
     const { exercises } = await queryExercises({ q: requested, limit: 25 })
     const wanted = requested.toLowerCase()
     const exact = exercises.filter((row) => row.name.trim().toLowerCase() === wanted)
-    const pool = exact.length > 0 ? exact : exercises
+    let pool = exact.length > 0 ? exact : exercises
+    // "incline bench" matches five catalog rows, but only one has ever been
+    // performed. When the name is ambiguous, prefer the movements with history —
+    // that is what someone asking about their progress means.
+    if (pool.length > 1) {
+      const performed = pool.filter((row) => (row.sets ?? 0) > 0 || row.lastPerformed)
+      if (performed.length >= 1) pool = performed
+    }
     if (pool.length !== 1) {
       return NextResponse.json(
         {

@@ -41,6 +41,10 @@ export interface ReadinessSource {
  *  from a "what should I train" standpoint, never-trained is maximally fresh —
  *  and carries status `untrained` so the caller can tell the two apart. */
 function freshestFirst(a: RegionReadiness, b: RegionReadiness): number {
+  // Regions with no history at all go last: "never trained" is not "fresh".
+  const aNever = a.lastTrainedDaysAgo == null
+  const bNever = b.lastTrainedDaysAgo == null
+  if (aNever !== bNever) return aNever ? 1 : -1
   const left = a.lastTrainedDaysAgo ?? Number.POSITIVE_INFINITY
   const right = b.lastTrainedDaysAgo ?? Number.POSITIVE_INFINITY
   if (left !== right) return right - left

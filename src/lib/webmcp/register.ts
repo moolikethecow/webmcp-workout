@@ -16,6 +16,9 @@
  * the browser drops every tool registered with it.
  */
 import type { ModelContextLike, WebMcpTool } from './types'
+import { devShimRequested, installDevShim } from './dev-shim'
+
+let devShim: ModelContextLike | null = null
 
 let absenceLogged = false
 
@@ -29,7 +32,10 @@ export function getModelContext(): ModelContextLike | null {
     typeof navigator === 'undefined'
       ? undefined
       : (navigator as unknown as { modelContext?: ModelContextLike }).modelContext
-  return fromNavigator ?? null
+  if (fromNavigator) return fromNavigator
+  // Opt-in stand-in for local verification only (see dev-shim.ts).
+  if (devShimRequested()) return (devShim ??= installDevShim())
+  return null
 }
 
 export interface RegisterResult {

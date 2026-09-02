@@ -51,9 +51,14 @@ export const setTrainingConstraint: WebMcpTool = {
       region: {
         type: 'string',
         description:
-          'create: the canonical body region, e.g. shoulder, lower_back, knee, elbow, wrist, hip, ankle, neck.',
+          'create: the body region. Canonical sites: shoulder_joint, elbows, wrists, hands, upper_arms, spine, ribs, hips, pelvis, groin, thighs, lower_legs, feet, head, neck, knees, ankles, plus the muscle regions traps, delts, chest, biceps, forearms, abs, obliques, quads, calves, lats, mid_back, lower_back, triceps, glutes, hamstrings. Common words are accepted and mapped (shoulder → shoulder_joint, knee → knees, back → lower_back, hamstring → hamstrings, …).',
       },
-      severity: { type: 'string', enum: ['nagging', 'limiting', 'out'] },
+      severity: {
+        type: 'string',
+        enum: ['nagging', 'limiting', 'out'],
+        description:
+          'nagging = noted, nothing is excluded; limiting = every movement that loads the site is excluded from search, drafts and live edits; out = the site is unusable (same exclusion). Choose limiting when the person wants to work around it today.',
+      },
       label: { type: 'string', description: 'Short human label, e.g. "left shoulder".' },
       note: { type: 'string', description: "What the person actually said, in their words." },
       expires_in_days: {
@@ -67,7 +72,7 @@ export const setTrainingConstraint: WebMcpTool = {
   async execute(args) {
     const action = str(args, 'action')
     if (action === 'create') {
-      const region = str(args, 'region')
+      const region = canonicalRegion(str(args, 'region'))
       if (!region) return fail('region is required to create a constraint.')
       const days = num(args, 'expires_in_days')
       const body =
@@ -108,4 +113,22 @@ export const setTrainingConstraint: WebMcpTool = {
     )
     return ok(result.json)
   },
+}
+
+const REGION_ALIASES: Record<string, string> = {
+  shoulder: 'shoulder_joint', shoulders: 'shoulder_joint', rotator_cuff: 'shoulder_joint', 'rotator cuff': 'shoulder_joint',
+  delt: 'delts', deltoid: 'delts', deltoids: 'delts',
+  knee: 'knees', ankle: 'ankles', wrist: 'wrists', elbow: 'elbows', hip: 'hips', hand: 'hands', foot: 'feet',
+  thigh: 'thighs', shin: 'lower_legs', shins: 'lower_legs', calf: 'calves',
+  back: 'lower_back', 'lower back': 'lower_back', lumbar: 'lower_back', 'upper back': 'mid_back', 'mid back': 'mid_back',
+  hamstring: 'hamstrings', quad: 'quads', quadriceps: 'quads', glute: 'glutes', bicep: 'biceps', tricep: 'triceps',
+  forearm: 'forearms', pec: 'chest', pecs: 'chest', pectorals: 'chest', lat: 'lats', ab: 'abs', core: 'abs', trap: 'traps',
+}
+
+/** Accept the words people actually use and hand the API a canonical site. */
+export function canonicalRegion(input: string | undefined): string | undefined {
+  if (!input) return undefined
+  const key = input.trim().toLowerCase().replace(/[-\s]+/g, '_')
+  const spaced = input.trim().toLowerCase()
+  return REGION_ALIASES[key] ?? REGION_ALIASES[spaced] ?? key
 }

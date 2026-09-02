@@ -26,6 +26,10 @@ export const searchExercises: WebMcpTool = {
         type: 'string',
         description: 'Equipment class, e.g. barbell, dumbbell, machine, cable, body only, bands.',
       },
+      modality: {
+        type: 'string',
+        description: "Filter by movement type: 'strength' (default for programming), 'stretch', 'dynamic', 'cardio'. Pass 'strength' to keep stretches and mobility drills out of a working set search.",
+      },
       limit: { type: 'integer', description: 'Maximum rows to return (default 50, max 200).' },
     },
     additionalProperties: false,
@@ -38,6 +42,7 @@ export const searchExercises: WebMcpTool = {
         q: str(args, 'q'),
         muscle: str(args, 'muscle'),
         equipment: str(args, 'equipment'),
+        modality: str(args, 'modality'),
         limit: num(args, 'limit'),
         // Always on: eligibility is not the caller's choice.
         eligible: '1',

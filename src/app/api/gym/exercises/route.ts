@@ -44,30 +44,42 @@ export async function GET(req: NextRequest) {
       filterRaw && VALID_FILTERS.has(filterRaw) ? (filterRaw as ExerciseFilter) : undefined
     const limit = toInt(p.get('limit'))
     const offset = toInt(p.get('offset'))
+    const eligible = p.get('eligible') === '1'
+    const modality = p.get('modality') ?? undefined
 
+    // The eligibility pass and the modality filter run AFTER the query, so
+    // over-fetch when either is on and cut to the requested page afterwards —
+    // otherwise a limited page can come back empty once its rows are excluded.
+    const postFiltered = eligible || !!modality
     const result = await queryExercises({
       q: p.get('q') ?? undefined,
       muscle: p.get('muscle') ?? undefined,
       equipment: p.get('equipment') ?? undefined,
       filter,
-      limit,
-      offset,
+      limit: postFiltered ? 200 : limit,
+      offset: postFiltered ? undefined : offset,
     })
+    if (modality) {
+      result.exercises = result.exercises.filter((row) => row.modality === modality)
+      result.total = result.exercises.length
+    }
 
     // Opt-in eligibility pass. It lives HERE and not in lib/gym/search so the
     // catalog browser (which must show everything, greyed or not) and the agent
     // surface (which must never propose a movement a live constraint excludes)
     // read the same query with one explicit flag between them.
-    if (p.get('eligible') === '1') {
+    if (eligible) {
       const filtered = await filterToEligible(result.exercises)
+      const page = filtered.exercises.slice(0, limit ?? 50)
       return NextResponse.json({
-        exercises: filtered.exercises,
+        exercises: page,
         total: filtered.exercises.length,
         excluded_count: filtered.excluded,
         eligibility: 'filtered',
       })
     }
 
+    if (postFiltered) result.exercises = result.exercises.slice(0, limit ?? 50)
     return NextResponse.json(result)
   } catch (err) {
     console.error('[gym/exercises] GET failed:', err instanceof Error ? err.message : err)

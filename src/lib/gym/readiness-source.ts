@@ -12,7 +12,7 @@
  * one implementation of `ReadinessSource` here, and it is complete.
  */
 import { buildMuscleMap } from '@/lib/fitness/muscle-map'
-import { REGION_LABELS, type MuscleRegion } from '@/lib/fitness/muscles'
+import { REGION_LABELS, type MuscleRegion, isMobilityOnlyRegion } from '@/lib/fitness/muscles'
 import { STATE_META, type MuscleTrainingState } from '@/lib/fitness/muscle-state'
 
 export interface RegionReadiness {
@@ -57,14 +57,18 @@ export const historyReadiness: ReadinessSource = {
   name: 'training-history',
   async compute(now: Date): Promise<RegionReadiness[]> {
     const map = await buildMuscleMap(now)
-    const out: RegionReadiness[] = Object.values(map.regions).map((region) => ({
+    // Joint regions (neck, knees, wrists, ankles) carry no strength credit and
+    // only exist for the mobility lens; to an agent they are noise.
+    const out: RegionReadiness[] = Object.values(map.regions)
+      .filter((region) => !isMobilityOnlyRegion(region.region))
+      .map((region) => ({
       region: region.region,
       label: region.label || REGION_LABELS[region.region],
       status: region.state,
       lastTrainedDaysAgo: region.daysSince,
       recentWorkingSets: region.weeklySets,
       note: STATE_META[region.state].hint,
-    }))
+      }))
     return out.sort(freshestFirst)
   },
 }

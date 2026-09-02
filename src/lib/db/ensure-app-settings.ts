@@ -15,7 +15,7 @@
 import { sql } from 'drizzle-orm'
 
 import { db } from '@/lib/db/client'
-import { currentWorkspaceKey } from '@/lib/workspace/context'
+import { currentWorkspaceKey, deferToProvisioner } from '@/lib/workspace/context'
 
 // Keyed by workspace id, NOT a single module-level promise: every visitor gets
 // their own Postgres schema, so a process-wide memo would run this DDL in the
@@ -23,6 +23,7 @@ import { currentWorkspaceKey } from '@/lib/workspace/context'
 const ensurePromises = new Map<string, Promise<void>>()
 
 export async function ensureAppSettingsSchema(): Promise<void> {
+  if (await deferToProvisioner()) return
   const key = await currentWorkspaceKey()
   let ensurePromise = ensurePromises.get(key)
   if (!ensurePromise) {

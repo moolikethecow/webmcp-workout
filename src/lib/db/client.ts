@@ -63,6 +63,9 @@ function createPool(): Pool {
     max: 3,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 5_000,
+    // Turn any wedge into an error the request can report.
+    statement_timeout: 30_000,
+    query_timeout: 30_000,
     // Keep TCP-level keepalives on so transient NAT/load-balancer drops surface
     // as errors instead of long hangs at first byte.
     keepAlive: true,

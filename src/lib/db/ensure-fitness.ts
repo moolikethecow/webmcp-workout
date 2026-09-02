@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/lib/db/client'
 import { ensureAppSettingsSchema } from '@/lib/db/ensure-app-settings'
-import { currentWorkspaceKey } from '@/lib/workspace/context'
+import { currentWorkspaceKey, deferToProvisioner } from '@/lib/workspace/context'
 
 /**
  * Runtime safety net for the fitness tables (strength log — 2026-06-25).
@@ -25,6 +25,7 @@ import { currentWorkspaceKey } from '@/lib/workspace/context'
 const ensurePromises = new Map<string, Promise<void>>()
 
 export async function ensureFitnessTables(): Promise<void> {
+  if (await deferToProvisioner()) return
   const key = await currentWorkspaceKey()
   let ensurePromise = ensurePromises.get(key)
   if (!ensurePromise) {
@@ -220,6 +221,7 @@ export async function ensureFitnessTables(): Promise<void> {
 const trackingColumnPromises = new Map<string, Promise<void>>()
 
 export async function ensureExerciseTrackingColumn(): Promise<void> {
+  if (await deferToProvisioner()) return
   const key = await currentWorkspaceKey()
   await ensureFitnessTables()
   let trackingColumnPromise = trackingColumnPromises.get(key)
@@ -252,6 +254,7 @@ export async function ensureExerciseTrackingColumn(): Promise<void> {
 const gymSchemaPromises = new Map<string, Promise<void>>()
 
 export async function ensureGymSchema(): Promise<void> {
+  if (await deferToProvisioner()) return
   const key = await currentWorkspaceKey()
   await ensureFitnessTables()
   let gymSchemaPromise = gymSchemaPromises.get(key)

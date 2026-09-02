@@ -124,3 +124,41 @@ export async function currentWorkspaceKey(): Promise<string> {
     return '__none__'
   }
 }
+
+/** True while the current async chain is the provisioner itself. */
+export function inProvisioning(): boolean {
+  return storage.getStore()?.provisioning === true
+}
+
+type ProvisionHook = (id: string) => Promise<void>
+let provisionHook: ProvisionHook | null = null
+/** Registered by `./provision` at module load; lets the DDL ensure functions
+ *  defer to the provisioner without importing it (which would be a cycle). */
+export function setProvisionHook(hook: ProvisionHook): void {
+  provisionHook = hook
+}
+/**
+ * Called by every DDL ensure function before it memoizes anything. Outside the
+ * provisioner, an ensure must NOT run the DDL itself: it hands off to
+ * provisioning and returns true ("already handled"). Otherwise a route's
+ * ensure call and the provisioner's ensure call memoize under the same key and
+ * wait on each other — a pure in-process deadlock that only appears when a
+ * page's first requests arrive together (2026-09-02).
+ */
+export async function deferToProvisioner(): Promise<boolean> {
+  if (inProvisioning()) return false
+  let id: string
+  try {
+    id = await currentWorkspaceId()
+  } catch {
+    return false
+  }
+  if (!provisionHook) {
+    // `./provision` imports this module; resolve it lazily at first use so the
+    // hand-off works no matter which module was evaluated first.
+    const mod = await import('./provision')
+    provisionHook = mod.ensureProvisioned
+  }
+  await provisionHook(id)
+  return true
+}

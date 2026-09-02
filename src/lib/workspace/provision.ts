@@ -25,7 +25,7 @@ import { unscopedDb, workspaceDrizzle } from '@/lib/db/client'
 import { ensureAppSettingsSchema } from '@/lib/db/ensure-app-settings'
 import { ensureGymSchema } from '@/lib/db/ensure-fitness'
 
-import { isWorkspaceId, runProvisioning, schemaNameFor } from './context'
+import { isWorkspaceId, runProvisioning, schemaNameFor, setProvisionHook } from './context'
 import { seedWorkspace } from './seed'
 
 /** Ids known-good in THIS process — the hot path skips every query. */
@@ -80,7 +80,12 @@ function touch(id: string): void {
     })
 }
 
+const dbg = (id: string, step: string) => {
+  if (process.env.WORKSPACE_DEBUG) console.info(`[workspace] ${id.slice(0, 8)} ${step}`)
+}
+
 async function provision(id: string): Promise<void> {
+  dbg(id, 'registry')
   await ensureRegistry()
   const schema = schemaNameFor(id)
 
@@ -100,6 +105,7 @@ async function provision(id: string): Promise<void> {
     if (ns.length > 0) return
   }
 
+  dbg(id, 'create schema')
   await unscopedDb().execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)}`)
   await unscopedDb().execute(
     sql`INSERT INTO public.workspaces (id) VALUES (${id}::uuid) ON CONFLICT (id) DO NOTHING`,
@@ -109,11 +115,16 @@ async function provision(id: string): Promise<void> {
     // ensureGymSchema() calls ensureAppSettingsSchema() itself, but the gym
     // lane is the one that CREATES app_settings' gym columns — calling both
     // explicitly keeps this readable and costs one memoized no-op.
+    dbg(id, 'ensure app_settings')
     await ensureAppSettingsSchema()
+    dbg(id, 'ensure gym schema')
     await ensureGymSchema()
+    dbg(id, 'seed')
     await seedWorkspace(workspaceDrizzle(id), { now: new Date() })
+    dbg(id, 'seeded')
   })
 
+  dbg(id, 'stamp')
   await unscopedDb().execute(
     sql`UPDATE public.workspaces SET seeded_at = now(), last_seen_at = now() WHERE id = ${id}::uuid`,
   )
@@ -125,6 +136,8 @@ async function provision(id: string): Promise<void> {
  * concurrency-safe, and after the first call in a process it is a Set lookup
  * plus a throttled heartbeat.
  */
+const PROVISION_TIMEOUT_MS = 60_000
+
 export async function ensureProvisioned(id: string): Promise<void> {
   if (!isWorkspaceId(id)) throw new Error(`[workspace] ensureProvisioned called with an invalid id: ${JSON.stringify(id)}`)
 
@@ -146,8 +159,25 @@ export async function ensureProvisioned(id: string): Promise<void> {
       })
     inflight.set(id, pending)
   }
-  await pending
+  // A wedged provision must fail the request (and be retried next time), never
+  // hang every request for this workspace until the process restarts.
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    await Promise.race([
+      pending,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          inflight.delete(id)
+          reject(new Error(`[workspace] provisioning ${id} timed out after ${PROVISION_TIMEOUT_MS}ms`))
+        }, PROVISION_TIMEOUT_MS)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
 }
+
+setProvisionHook(ensureProvisioned)
 
 /** Forget a workspace's provisioning state — for the sweeper and for tests
  *  that drop a schema out from under the process. */

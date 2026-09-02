@@ -317,6 +317,18 @@ body {
   border-radius: 8px;
 }
 
+/* An exercise the agent just changed fades from a faint accent wash back to
+   nothing, so a set that changes under your hands says who changed it. One
+   shot, 1.5s. Inert under prefers-reduced-motion (the global rule above cuts
+   the duration; the outline is what remains, briefly). */
+@keyframes agent-touched-fade {
+  0%   { background-color: color-mix(in oklch, var(--accent) 18%, transparent); }
+  100% { background-color: transparent; }
+}
+.agent-touched {
+  animation: agent-touched-fade 1500ms ease-out;
+}
+
 /* ===== Mobile overlay (2026-06-11) ====================================== */
 /* The app is inline-styled, so responsive behavior rides as a small class
    overlay — classes need !important to beat inline styles. The user interacts

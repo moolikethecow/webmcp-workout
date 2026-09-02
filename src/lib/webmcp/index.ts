@@ -15,8 +15,14 @@ export {
   useAgentEventStore,
   recordAgentEvent,
   agentEvents,
+  agentTouchedAt,
+  agentTouchedRecently,
+  AGENT_PULSE_MS,
+  ALL_EXERCISES,
   type AgentEvent,
+  type AgentRegistration,
 } from './agent-events'
+export { useAgentPulse } from './use-agent-pulse'
 export type {
   JsonSchemaObject,
   ModelContextLike,

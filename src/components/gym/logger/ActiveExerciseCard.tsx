@@ -17,6 +17,7 @@ import { ArrowDown, ArrowUp, ChevronDown, Link2, Link2Off, MoreVertical, Noteboo
 
 import { ExerciseDetailSheet } from '@/components/gym/exercises'
 import { musclesForExercise, REGION_LABELS } from '@/lib/fitness/muscles'
+import { useAgentPulse } from '@/lib/webmcp/use-agent-pulse'
 import type { ActiveExercise, SetField, SetType, StrengthSideMode } from '@/lib/gym-client/active-types'
 import type { PadTarget } from './pad-context'
 import type { SupersetInfo } from './supersets'
@@ -162,12 +163,20 @@ export function ActiveExerciseCard({
     [exercise],
   )
 
+  // "Updated by agent": this card washes accent for 1.5s when an agent tool
+  // changed THIS exercise. Applied at the card container (not per set row) —
+  // the row is a dense grid of inputs and a background animation there fights
+  // the pad/ghost styling.
+  const agentTouched = useAgentPulse(exercise.name)
+
   if (collapsed) {
     return (
       <button
         type="button"
         onClick={() => setManuallyExpanded(true)}
         aria-label={`Expand ${exercise.name}`}
+        className={agentTouched ? 'agent-touched' : undefined}
+        data-agent-touched={agentTouched ? 'true' : undefined}
         style={collapsedRow}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
@@ -182,6 +191,8 @@ export function ActiveExerciseCard({
   const grouped = superset?.group != null
   return (
     <div
+      className={agentTouched ? 'agent-touched' : undefined}
+      data-agent-touched={agentTouched ? 'true' : undefined}
       style={{
         ...card,
         ...(grouped

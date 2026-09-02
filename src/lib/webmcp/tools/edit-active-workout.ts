@@ -2,6 +2,37 @@ import { agentFetch } from '../fetch'
 import type { WebMcpTool } from '../types'
 import { afterMutation, failFrom, ok } from './shared'
 
+/**
+ * Which exercises actually changed, for the row pulse.
+ *
+ * `applied[]` reports `{ op, change }` — the op's own arguments are not echoed
+ * back, so the names come from the request. A requested name only counts when
+ * it appears in the text of an applied change, which keeps a rejected op from
+ * lighting up a row that was never touched.
+ */
+export function changedExerciseNames(
+  args: Record<string, unknown>,
+  applied: Array<{ change?: string }>,
+): string[] {
+  const text = applied.map((entry) => entry.change ?? '').join(' ').toLowerCase()
+  if (!text) return []
+  const ops = Array.isArray(args.ops) ? (args.ops as Array<Record<string, unknown>>) : []
+  const candidates = new Set<string>()
+  for (const op of ops) {
+    for (const key of ['exercise_name', 'replacement_exercise_name']) {
+      const value = op?.[key]
+      if (typeof value === 'string' && value.trim()) candidates.add(value.trim())
+    }
+    const names = op?.exercise_names
+    if (Array.isArray(names)) {
+      for (const name of names) {
+        if (typeof name === 'string' && name.trim()) candidates.add(name.trim())
+      }
+    }
+  }
+  return [...candidates].filter((name) => text.includes(name.toLowerCase()))
+}
+
 const WARMUP_SET = {
   type: 'object',
   properties: {
@@ -115,6 +146,7 @@ export const editActiveWorkout: WebMcpTool = {
       afterMutation(
         'edit_active_workout',
         applied.map((entry) => entry.change ?? '').filter(Boolean).join(' '),
+        changedExerciseNames(args, applied),
       )
     }
     return ok(result.json)

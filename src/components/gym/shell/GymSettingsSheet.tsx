@@ -61,6 +61,7 @@ function Row({ children }: { children: React.ReactNode }) {
 export default function GymSettingsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [settings, setSettings] = useState<GymSettings | null>(null)
   const [habits, setHabits] = useState<HabitOption[]>([])
+  const [resetting, setResetting] = useState(false)
 
   const load = useCallback(async () => {
     const [sRes, hRes] = await Promise.all([
@@ -96,6 +97,31 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
     })
     if (res.ok) setSettings((await res.json()) as GymSettings)
   }, [])
+
+  // Reset the visitor's own workspace back to the seeded athlete. The route is
+  // owned by the workspace layer; a deployment without it answers 404, which is
+  // a "not here" and not a failure to shout about.
+  const resetWorkspace = async () => {
+    if (resetting) return
+    setResetting(true)
+    const { toast } = await import('sonner')
+    try {
+      const res = await fetch('/api/workspace/reset', { method: 'POST' })
+      if (res.status === 404) {
+        toast.error('Workspace reset isn’t available on this deployment.')
+        return
+      }
+      if (!res.ok) {
+        toast.error('Couldn’t reset the demo workspace.')
+        return
+      }
+      window.location.reload()
+    } catch {
+      toast.error('Couldn’t reset the demo workspace.')
+    } finally {
+      setResetting(false)
+    }
+  }
 
   if (!open) return null
 
@@ -263,6 +289,28 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
         {/* Injuries list (P3) */}
         <div style={sectionDivider}>
           <InjuriesSection />
+        </div>
+
+        {/* Demo workspace */}
+        <div style={sectionDivider}>
+          <Row>
+            <span style={labelStyle}>Demo workspace</span>
+            <p style={helpStyle}>Every visitor gets a private workspace with a fictional athlete&rsquo;s history.</p>
+            <button
+              type="button"
+              onClick={() => void resetWorkspace()}
+              disabled={resetting}
+              style={{
+                ...controlStyle,
+                alignSelf: 'flex-start',
+                minHeight: 44,
+                cursor: resetting ? 'default' : 'pointer',
+                opacity: resetting ? 0.6 : 1,
+              }}
+            >
+              {resetting ? 'Resetting…' : 'Reset demo workspace'}
+            </button>
+          </Row>
         </div>
       </div>
     </div>

@@ -38,10 +38,12 @@ export function failFrom(result: AgentFetchResult, fallback: string): WebMcpTool
   return fail(`${message}${detail}`)
 }
 
-/** Refresh the open page and record the change in the visible agent feed. */
-export function afterMutation(tool: string, summary: string): void {
+/** Refresh the open page and record the change in the visible agent feed.
+ *  `exercises` are the movements this mutation touched (`['*']` = all of them),
+ *  which is what makes the affected rows pulse instead of silently changing. */
+export function afterMutation(tool: string, summary: string, exercises?: string[]): void {
   invalidateResources(['gym'])
-  recordAgentEvent(tool, summary)
+  recordAgentEvent(tool, summary, exercises)
 }
 
 /** Read a string arg, trimmed; undefined when absent or empty. */

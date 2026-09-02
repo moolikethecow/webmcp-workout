@@ -18,7 +18,9 @@ import { Settings } from 'lucide-react'
 
 import { HealthStyles, PageHead } from '@/components/health/primitives'
 import { MuscleMap } from '@/components/health/MuscleMap'
+import { useGymWebMCP } from '@/lib/webmcp'
 
+import AgentActivity from './AgentActivity'
 import TrainTab from './TrainTab'
 import TemplatesTab from './TemplatesTab'
 import HistoryTab from './HistoryTab'
@@ -47,6 +49,11 @@ export default function GymShell() {
 
   const urlTab = searchParams.get('tab')
   const tab: TabKey = isTabKey(urlTab) ? urlTab : 'train'
+
+  // Tool registration follows the visible tab: History is reads-only, every
+  // other tab is the live session. Registering per tab keeps the offered tool
+  // list an accurate description of what makes sense here.
+  useGymWebMCP(tab === 'history' ? 'history' : 'gym')
 
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -145,6 +152,8 @@ export default function GymShell() {
             )
           })}
         </div>
+
+        <AgentActivity />
 
         <div role="tabpanel" id={`gym-panel-${tab}`} aria-labelledby={`gym-tab-${tab}`}>
           {tab === 'train' && <TrainTab />}

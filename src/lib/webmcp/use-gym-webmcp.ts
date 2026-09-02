@@ -14,6 +14,7 @@
  */
 import { useEffect, useState } from 'react'
 
+import { useAgentEventStore } from './agent-events'
 import { registerTools, type RegisterResult } from './register'
 import { toolsForPage, type GymPage } from './tools'
 
@@ -34,12 +35,21 @@ export function useGymWebMCP(page: GymPage): GymWebMcpStatus {
     void registerTools(toolsForPage(page), controller.signal).then((result: RegisterResult) => {
       if (cancelled) return
       setStatus({ supported: result.supported, registered: result.registered })
+      // Published so the UI can say, honestly, what this browser can do — a
+      // browser without WebMCP is told so rather than shown "0 tools".
+      useAgentEventStore.getState().setRegistration({
+        checked: true,
+        supported: result.supported,
+        registered: result.registered,
+      })
     })
 
     return () => {
       cancelled = true
-      // Unregisters every tool registered with this signal.
+      // Unregisters every tool registered with this signal, so the published
+      // registration has to go with it.
       controller.abort()
+      useAgentEventStore.getState().setRegistration({ checked: false, supported: false, registered: [] })
     }
   }, [page])
 

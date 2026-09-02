@@ -1,5 +1,6 @@
 import { agentFetch } from '../fetch'
 import type { WebMcpTool } from '../types'
+import { ALL_EXERCISES } from '../agent-events'
 import { afterMutation, fail, failFrom, ok, str } from './shared'
 
 /**
@@ -46,7 +47,7 @@ export const startWorkout: WebMcpTool = {
         body: JSON.stringify({ action: 'start', proposalId }),
       })
       if (!result.ok) return failFrom(result, 'Could not start the draft')
-      afterMutation('start_workout', 'Started the workout draft.')
+      afterMutation('start_workout', 'Started the workout draft.', [ALL_EXERCISES])
       return ok(result.json)
     }
 
@@ -57,7 +58,7 @@ export const startWorkout: WebMcpTool = {
     }
     const result = await agentFetch('/api/gym/workouts', { method: 'POST', body: JSON.stringify(body) })
     if (!result.ok) return failFrom(result, 'Could not start the workout')
-    afterMutation('start_workout', 'Started a workout.')
+    afterMutation('start_workout', 'Started a workout.', [ALL_EXERCISES])
     return ok(result.json)
   },
 }

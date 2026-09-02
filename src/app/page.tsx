@@ -1,6 +1,11 @@
-import { redirect } from 'next/navigation'
+'use client'
 
-/** The dashboard lands here later; for now the gym surface is the whole app. */
+/**
+ * `/` — the dashboard. The gym section lives at /gym; this is the page you open
+ * (or point an agent at) to see where training stands right now.
+ */
+import Dashboard from '@/components/gym/dashboard/Dashboard'
+
 export default function HomePage() {
-  redirect('/gym')
+  return <Dashboard />
 }

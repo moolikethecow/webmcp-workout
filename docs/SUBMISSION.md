@@ -19,20 +19,32 @@ You train. You tap sets done. Then you say, out loud or typed, "my shoulder's bu
 - Apply a training constraint once and have it enforced everywhere: search, drafts, live edits all pass through one eligibility function over precomputed biomechanical demand profiles.
 - Pick today's work from per-muscle readiness that's derived from the athlete's actual history, not from generic fitness advice.
 - Get progression answers that are auditable: explicit policy in, next target out.
+- Say "I'm in a hotel gym, dumbbells and a smith machine only" and have the catalog narrow to the room you are standing in — a gym that has never been recorded is created from the description.
+- Let an agent *stage* a claim about your body without being able to assert it. The training-constraint tool is a form: the agent fills it, the tool call stays pending, and it completes when you press Add.
 
 The human is better at feeling how a set went and calling an audible. The agent is better at querying six weeks of history, reconciling constraints and readiness, and doing the arithmetic. Neither replaces the other; the page is where they meet.
 
 ## How WebMCP is implemented
 
-Twelve page-scoped tools (`get_training_context`, `get_active_workout`, `edit_active_workout`, `search_exercises`, `get_muscle_readiness`, `get_training_constraints`, `set_training_constraint`, `draft_workout`, `edit_workout_draft`, `start_workout`, `get_exercise_progress`, `get_workout_history`) are registered with `document.modelContext.registerTool` by a React hook on mount and unregistered through an `AbortController` on navigation. Each `execute` performs a same-origin `fetch` to the app's own API routes, which call the same library functions the UI uses, then invalidates the page's data so the logger refetches. Mutations pass `expected_revision` and return the new revision. Read tools carry `readOnlyHint`. Descriptions carry the invariants (completed sets preserved, warm-ups are not working volume, substitutions must come from the eligible pool, constraints are hard limits, no diagnosis). `get_training_context` returns the collaboration rules so an agent has a one-call orientation. Every visitor gets an isolated Postgres schema seeded with a fictional athlete, so judges can mutate freely.
+We use both halves of the API, and the split between them is the design.
+
+**Fourteen page-scoped tools** (`get_training_context`, `get_active_workout`, `edit_active_workout`, `search_exercises`, `get_muscle_readiness`, `get_training_constraints`, `set_training_constraint`, `draft_workout`, `edit_workout_draft`, `start_workout`, `get_exercise_progress`, `get_workout_history`, `list_gyms`, `switch_gym`) are registered with `document.modelContext.registerTool` by a React hook on mount and unregistered through an `AbortController` on navigation. Each `execute` performs a same-origin `fetch` to the app's own API routes, which call the same library functions the UI uses, then invalidates the page's data so the logger refetches. Mutations pass `expected_revision` and return the new revision. Read tools carry `readOnlyHint`. Descriptions carry the invariants (completed sets preserved, warm-ups are not working volume, substitutions must come from the eligible pool, constraints are hard limits, no diagnosis). `get_training_context` returns the collaboration rules so an agent has a one-call orientation. The tool list is page-scoped because a tool list is a prompt: `edit_active_workout` is not offered where there is no live session.
+
+**One declarative tool, registered by markup.** `report_training_constraint` is a `<form>` on the dashboard carrying `toolname` and `tooldescription`. There is no `registerTool` call: Chrome reads the controls and derives the schema from them — `required` becomes JSON Schema `required`, a `<select>` becomes an enum carrying its option labels, and so on. We chose a form here for what it does to the timing. Chrome fills the fields and then waits: the tool call does not resolve until the form is actually submitted, so an agent can put `shoulder_joint · limiting · left shoulder` on screen but a person commits it. `SubmitEvent` exposes `agentInvoked` and `respondWith()`, so one handler serves both callers and hands the result back to whichever one was an agent.
+
+That gives the app an honest line: **what the agent may do alone is registered in code; what needs a hand on the button is a form.** Reading, searching, drafting and re-prescribing work not yet done are the first kind. Asserting a limit on your own body is the second. And because it is a real form, a browser with no WebMCP gets an ordinary constraint editor — the feature degrades into plain HTML.
+
+Every visitor gets an isolated Postgres schema seeded with a fictional athlete, so judges can mutate freely.
 
 ## Testing instructions
 
-Open https://gym.mootoo.co in ChatGPT's in-app browser, or in Chrome 149+ with `chrome://flags/#enable-webmcp-testing` enabled. No login. Start the suggested workout on **/gym**, complete a set by hand, then try:
+Open https://gym.mootoo.co in ChatGPT's in-app browser, or in Chrome 149+. **The origin carries a WebMCP origin-trial token, so no flag is required** — `document.modelContext` is there on load. (`chrome://flags/#enable-webmcp-testing` still works for a local build; `chrome://flags/#devtools-webmcp-support` adds the DevTools panel.) No login. Start the suggested workout on **/gym**, complete a set by hand, then try:
 
 1. "My shoulder's bugging me and I've got 30 minutes. Keep what I've done, work around the shoulder, hit whatever's freshest."
 2. Complete another set yourself, then: "What should I do next?"
 3. "Before I go heavier on incline bench, am I actually progressing?"
+4. On **/** — "my left shoulder is bad today, note it as limiting." Watch the constraint form fill in and stop. Nothing is recorded until you press Add; then search and drafts exclude overhead pressing.
+5. "I'm in a hotel gym this week — dumbbells and a smith machine, that's it." The catalog narrows to what is in the room, and the reply says by how much.
 
 Reset the workspace from Settings at any time.
 

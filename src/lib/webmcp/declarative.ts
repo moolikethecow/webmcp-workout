@@ -29,6 +29,11 @@
  *   2. a human submits the form → the page's own submit handler runs
  *   3. handler calls respondWith(Promise<string>) → the agent's call resolves
  *
+ * One sharp edge, found on prod rather than in a test: resetting the form
+ * while a call is pending makes Chrome cancel it ("Tool execution cancelled by
+ * a form reset"), so the agent hears that its call failed even though the write
+ * went through. Do not call `form.reset()` on an agent-invoked submit.
+ *
  * `event.agentInvoked` separates the two ways a submit can arrive. Both do
  * exactly the same work; only the agent-invoked one has somewhere to send a
  * result. A browser without WebMCP has neither member, `agentInvoked` is

@@ -12,6 +12,7 @@ import { NextRequest } from 'next/server'
 const mockAuth = vi.hoisted(() => vi.fn(() => true))
 const mockQuery = vi.hoisted(() => vi.fn())
 const mockListInjuries = vi.hoisted(() => vi.fn())
+const mockListGyms = vi.hoisted(() => vi.fn())
 const mockExecute = vi.hoisted(() => vi.fn())
 
 vi.mock('@/lib/auth', () => ({ authenticateRequest: mockAuth }))
@@ -19,7 +20,7 @@ vi.mock('@/lib/db/ensure-fitness', () => ({ ensureGymSchema: vi.fn().mockResolve
 vi.mock('@/lib/db/client', () => ({ db: { execute: mockExecute } }))
 vi.mock('@/lib/gym/exercise-detail', () => ({ createExerciseWithFill: vi.fn() }))
 vi.mock('@/lib/gym/search', () => ({ queryExercises: mockQuery }))
-vi.mock('@/lib/gym/injuries-gyms', () => ({ listInjuries: mockListInjuries }))
+vi.mock('@/lib/gym/injuries-gyms', () => ({ listInjuries: mockListInjuries, listGyms: mockListGyms }))
 
 const { GET } = await import('../route')
 
@@ -44,12 +45,14 @@ beforeEach(() => {
   mockAuth.mockReset().mockReturnValue(true)
   mockQuery.mockReset().mockResolvedValue({
     exercises: [
-      { id: 'ex-press', name: 'Overhead Press' },
-      { id: 'ex-squat', name: 'Back Squat' },
+      { id: 'ex-press', name: 'Overhead Press', equipment: 'barbell' },
+      { id: 'ex-squat', name: 'Back Squat', equipment: 'barbell' },
     ],
     total: 2,
   })
   mockListInjuries.mockReset().mockResolvedValue([])
+  // No gym on record → everything is assumed present, same rule as buildPools.
+  mockListGyms.mockReset().mockResolvedValue([])
   mockExecute.mockReset().mockResolvedValue({
     rows: [
       { id: 'ex-press', injury_profile: SHOULDER_PROFILE, injury_override: false },
@@ -104,5 +107,68 @@ describe('GET /api/gym/exercises', () => {
     const body = await (await GET(req('http://localhost/api/gym/exercises?eligible=1'))).json()
     expect(body.exercises).toHaveLength(2)
     expect(body.excluded_count).toBe(0)
+  })
+
+  it('drops what the active gym does not have, not just what a constraint forbids', async () => {
+    mockQuery.mockResolvedValue({
+      exercises: [
+        { id: 'ex-press', name: 'Overhead Press', equipment: 'barbell' },
+        { id: 'ex-curl', name: 'Dumbbell Curl', equipment: 'dumbbell' },
+      ],
+      total: 2,
+    })
+    mockExecute.mockResolvedValue({ rows: [] })
+    mockListGyms.mockResolvedValue([
+      {
+        id: 'g1',
+        name: 'Da Nang hotel gym',
+        isDefault: true,
+        equipment: { categories: ['dumbbell'], machines: [], machines_excluded: [] },
+      },
+    ])
+
+    const res = await GET(req('http://x/api/gym/exercises?eligible=1'))
+    const body = await res.json()
+
+    expect(body.exercises.map((e: { name: string }) => e.name)).toEqual(['Dumbbell Curl'])
+    expect(body.excluded_by_equipment).toBe(1)
+    expect(body.excluded_count).toBe(1)
+  })
+
+  it('honours the per-gym "not available here" list by exact name', async () => {
+    mockQuery.mockResolvedValue({
+      exercises: [
+        { id: 'ex-press', name: 'Overhead Press', equipment: 'barbell' },
+        { id: 'ex-squat', name: 'Back Squat', equipment: 'barbell' },
+      ],
+      total: 2,
+    })
+    mockExecute.mockResolvedValue({ rows: [] })
+    mockListGyms.mockResolvedValue([
+      {
+        id: 'g1',
+        name: 'Iron Vault',
+        isDefault: true,
+        equipment: { categories: ['barbell'], machines: [], machines_excluded: ['back squat'] },
+      },
+    ])
+
+    const res = await GET(req('http://x/api/gym/exercises?eligible=1'))
+    const body = await res.json()
+
+    expect(body.exercises.map((e: { name: string }) => e.name)).toEqual(['Overhead Press'])
+    expect(body.excluded_by_equipment).toBe(1)
+  })
+
+  it('leaves the unfiltered catalog alone — no gym gate without eligible=1', async () => {
+    mockListGyms.mockResolvedValue([
+      { id: 'g1', name: 'Bodyweight only', isDefault: true, equipment: { categories: ['body only'], machines: [], machines_excluded: [] } },
+    ])
+
+    const res = await GET(req('http://x/api/gym/exercises'))
+    const body = await res.json()
+
+    expect(body.exercises).toHaveLength(2)
+    expect(body.excluded_by_equipment).toBeUndefined()
   })
 })

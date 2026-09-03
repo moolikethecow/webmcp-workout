@@ -5,7 +5,8 @@ import { authenticateRequest } from '@/lib/auth'
 import { db } from '@/lib/db/client'
 import { ensureGymSchema } from '@/lib/db/ensure-fitness'
 import { createExerciseWithFill } from '@/lib/gym/exercise-detail'
-import { listInjuries } from '@/lib/gym/injuries-gyms'
+import { listGyms, listInjuries } from '@/lib/gym/injuries-gyms'
+import { gymCompatible, gymEquipmentTokens, gymExcludedNames } from '@/lib/gym/novelty'
 import {
   exerciseAllowedWithInjuries,
   parseExerciseInjuryProfile,
@@ -75,6 +76,7 @@ export async function GET(req: NextRequest) {
         exercises: page,
         total: filtered.exercises.length,
         excluded_count: filtered.excluded,
+        excluded_by_equipment: filtered.excludedByEquipment,
         eligibility: 'filtered',
       })
     }
@@ -113,25 +115,55 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * Drop rows that conflict with an ACTIVE training constraint.
+ * Drop every row this person cannot actually do right now.
  *
- * The `InjuryConstraint[]` projection and the `injury_override` escape hatch
- * mirror the template-start path in lib/gym/active-workout.ts exactly — a
- * physio-cleared movement carries `injury_override` precisely so it survives
- * the gate, and the gate itself (`exerciseAllowedWithInjuries`) is the one
- * canonical eligibility check the drafting engine and the live editor also use.
+ * Two independent gates, because they fail for different reasons and an agent
+ * that is told "excluded" deserves to know which:
+ *
+ *   constraints  the `InjuryConstraint[]` projection and the `injury_override`
+ *                escape hatch mirror the template-start path in
+ *                lib/gym/active-workout.ts exactly — a physio-cleared movement
+ *                carries `injury_override` precisely so it survives the gate,
+ *                and the gate itself (`exerciseAllowedWithInjuries`) is the one
+ *                canonical check the drafting engine and live editor also use.
+ *
+ *   equipment    the active gym's kit, through the same `gymCompatible` the
+ *                drafting pools use. This gate was specified from the start —
+ *                `search_exercises` has always said "filtered to what the
+ *                current equipment and constraints allow" — but only the
+ *                constraint half was ever implemented, so a dumbbell-only hotel
+ *                gym still returned barbell lifts to the agent. Found by
+ *                switching gyms on prod and watching the eligible count refuse
+ *                to move.
  */
 async function filterToEligible(
   exercises: ExerciseListItem[],
-): Promise<{ exercises: ExerciseListItem[]; excluded: number }> {
-  if (exercises.length === 0) return { exercises, excluded: 0 }
-  const injuries: InjuryConstraint[] = (await listInjuries(true)).map((injury) => ({
+): Promise<{ exercises: ExerciseListItem[]; excluded: number; excludedByEquipment: number }> {
+  if (exercises.length === 0) return { exercises, excluded: 0, excludedByEquipment: 0 }
+
+  const [injuriesRaw, gyms] = await Promise.all([listInjuries(true), listGyms()])
+  const injuries: InjuryConstraint[] = injuriesRaw.map((injury) => ({
     region: injury.region,
     severity: injury.severity,
   })) as InjuryConstraint[]
-  if (injuries.length === 0) return { exercises, excluded: 0 }
 
-  const ids = exercises.map((exercise) => exercise.id)
+  // The active gym is the default one; no gym, or a gym with no equipment
+  // listed, means "assume everything is here" — same rule as buildPools.
+  const activeGym = gyms.find((gym) => gym.isDefault) ?? null
+  const tokens = gymEquipmentTokens(activeGym?.equipment ?? null)
+  const excludedNames = gymExcludedNames(activeGym?.equipment ?? null)
+
+  const afterEquipment = exercises.filter((exercise) => gymCompatible(exercise, tokens, excludedNames))
+  const excludedByEquipment = exercises.length - afterEquipment.length
+
+  if (injuries.length === 0) {
+    return { exercises: afterEquipment, excluded: excludedByEquipment, excludedByEquipment }
+  }
+
+  const ids = afterEquipment.map((exercise) => exercise.id)
+  if (ids.length === 0) {
+    return { exercises: afterEquipment, excluded: excludedByEquipment, excludedByEquipment }
+  }
   const rows = (
     await db.execute(sql`
       SELECT id, injury_profile, injury_override
@@ -141,13 +173,13 @@ async function filterToEligible(
   ).rows as unknown as Array<{ id: string; injury_profile: unknown; injury_override: boolean | null }>
   const byId = new Map(rows.map((row) => [row.id, row]))
 
-  const kept = exercises.filter((exercise) => {
+  const kept = afterEquipment.filter((exercise) => {
     const row = byId.get(exercise.id)
     if (!row) return false
     if (row.injury_override) return true
     return exerciseAllowedWithInjuries(parseExerciseInjuryProfile(row.injury_profile), injuries).allowed
   })
-  return { exercises: kept, excluded: exercises.length - kept.length }
+  return { exercises: kept, excluded: exercises.length - kept.length, excludedByEquipment }
 }
 
 function toInt(v: string | null): number | undefined {

@@ -135,7 +135,11 @@ export const switchGym: WebMcpTool = {
  * it just did to the option space, and the next draft would be the first hint.
  * One extra read makes the consequence part of the answer.
  */
-async function eligibility(): Promise<{ eligibleExercises?: number; catalogSize?: number }> {
+async function eligibility(): Promise<{
+  eligibleExercises?: number
+  catalogSize?: number
+  excludedByEquipment?: number
+}> {
   const [eligible, all] = await Promise.all([
     agentFetch('/api/gym/exercises?eligible=1&limit=1'),
     agentFetch('/api/gym/exercises?limit=1'),
@@ -143,6 +147,9 @@ async function eligibility(): Promise<{ eligibleExercises?: number; catalogSize?
   if (!eligible.ok || typeof eligible.json.total !== 'number') return {}
   return {
     eligibleExercises: eligible.json.total,
+    ...(typeof eligible.json.excluded_by_equipment === 'number'
+      ? { excludedByEquipment: eligible.json.excluded_by_equipment }
+      : {}),
     ...(all.ok && typeof all.json.total === 'number' ? { catalogSize: all.json.total } : {}),
   }
 }

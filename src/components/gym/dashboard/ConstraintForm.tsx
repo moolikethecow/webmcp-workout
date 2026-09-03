@@ -17,6 +17,13 @@
  *
  * Without WebMCP this is an ordinary form, and a useful one: before it, adding
  * a constraint meant digging into the settings sheet.
+ *
+ * One wart: Chrome puts every `<option>` in the derived enum, `hidden` and
+ * `disabled` included, so the "Choose a region…" placeholder shows up as `""`.
+ * Dropping it would mean a real region sitting pre-selected in a form about
+ * someone's body, which is worse. The `title` on each select tells an agent not
+ * to send it, `required` stops a person submitting it, and the route answers an
+ * empty region with a 400 the form hands straight back.
  */
 import { useCallback, useRef, useState } from 'react'
 
@@ -75,7 +82,13 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
 
           const site = INJURY_SITE_LABELS[values.region as keyof typeof INJURY_SITE_LABELS] ?? values.region
           const named = values.label?.trim() || site
-          form.reset()
+          // Resetting the form while a declarative call is in flight makes
+          // Chrome cancel it — "Tool execution cancelled by a form reset" —
+          // and the agent is told the call failed even though the write
+          // succeeded. So an agent-invoked submit leaves the values on screen,
+          // which is also the better record of what was just confirmed. A
+          // person who typed them gets a cleared form.
+          if (!fromAgent) form.reset()
           await onAdded()
           if (fromAgent) {
             afterMutation('report_training_constraint', `Added a ${values.severity} constraint on ${named}.`)
@@ -103,7 +116,7 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
       <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
         <label style={field}>
           <span style={fieldLabel}>Region</span>
-          <select name="region" required title="The body region that cannot be loaded" style={control} defaultValue="">
+          <select name="region" required title="The body region that cannot be loaded. Pass a canonical value, never the empty placeholder." style={control} defaultValue="">
             <option value="" disabled>
               Choose a region…
             </option>
@@ -120,7 +133,7 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
           <select
             name="severity"
             required
-            title="How much this limits training: nagging is noted only; limiting and out both exclude conflicting movements"
+            title="How much this limits training: nagging is noted only; limiting and out both exclude conflicting movements. Never the empty placeholder."
             style={control}
             defaultValue=""
           >

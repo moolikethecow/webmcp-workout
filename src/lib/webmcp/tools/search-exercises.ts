@@ -4,16 +4,25 @@ import { failFrom, num, ok, str } from './shared'
 
 /**
  * Substitution starts here, always. The tool pins `eligible=1` so a movement
- * excluded by a live training constraint is never even offered — the agent
- * cannot route around the gate by choosing not to pass a flag.
+ * this person cannot do is never even offered — the agent cannot route around
+ * the gate by choosing not to pass a flag.
+ *
+ * Two gates hide behind that one flag, and the description names both, because
+ * an agent that knows only about constraints will explain an absent barbell
+ * bench press by blaming a shoulder when the real answer is that the gym has no
+ * barbell.
  */
 export const searchExercises: WebMcpTool = {
   name: 'search_exercises',
   description:
-    'Search the exercise catalog. Results are filtered to what the current training constraints allow, ' +
-    'so anything returned here is safe to add or substitute. Use this BEFORE proposing any exercise by ' +
-    'name — names must match the catalog exactly for edit_active_workout to accept them. `excluded_count` ' +
-    'reports how many otherwise-matching movements were withheld by an active constraint. Read-only.',
+    'Search the exercise catalog. Results are filtered twice — to what the active gym can equip, and to ' +
+    'what the current training constraints allow — so anything returned here is safe to add or ' +
+    'substitute. Use this BEFORE proposing any exercise by name; names must match the catalog exactly ' +
+    'for edit_active_workout to accept them. `excluded_count` is how many otherwise-matching movements ' +
+    'were withheld, and `excluded_by_equipment` how many of those were the gym rather than the body — ' +
+    'if a movement someone asked for is missing, that pair says which to tell them. Counts describe the ' +
+    '`sampled` rows examined, not the whole `catalog_total`. Use list_gyms or switch_gym when the ' +
+    'equipment is the problem. Read-only.',
   inputSchema: {
     type: 'object',
     properties: {

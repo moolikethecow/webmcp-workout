@@ -1,5 +1,14 @@
 # Devpost submission text (draft)
 
+## Before you submit — the checklist
+
+1. **Flip the repo public** (`gh repo edit moolikethecow/webmcp-workout --visibility public --accept-visibility-change-consequences`) and confirm the LICENSE (AGPL-3.0) shows on the GitHub landing page.
+2. **Test in ChatGPT the right way:** desktop app, updated; a **Work or Codex** chat on **GPT-5.6 Sol or Terra**; open https://gym.mootoo.co in the built-in browser; the address bar's **Site tools** menu should list the tools. If the agent says it cannot attach to the tab while the page reads *Agent-ready*, the chat is on the wrong model or mode — not the page.
+3. **Record the video** (< 3 min) from `docs/DEMO_SCRIPT.md`, upload to YouTube (unlisted is fine), paste the link.
+4. **Paste the four sections below** into the Devpost form (why WebMCP / better UX / together / how implemented), plus the testing instructions.
+5. Deadline: **Thu 2026-09-03 13:00 PT**.
+
+
 **Project name:** Workout — a WebMCP-native training partner
 **Tagline:** The human logs the sets. The agent reshapes what's left. Same live workout, same rules.
 **Live URL:** https://gym.mootoo.co (no login; every visitor gets a private seeded workspace)

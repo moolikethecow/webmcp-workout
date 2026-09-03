@@ -19,7 +19,8 @@ import { queryExercises, type ExerciseFilter, type ExerciseListItem } from '@/li
  *
  *   GET  ?q=&muscle=&equipment=&filter=&limit=&offset=&eligible=
  *        → { exercises: ExerciseListItem[], total } (see lib/gym/search).
- *        eligible=1 additionally drops every row that conflicts with an ACTIVE
+ *        eligible=1 drops every row the active gym cannot equip, and every row
+ *        that conflicts with an ACTIVE
  *        training constraint and reports `excluded_count` + `eligibility`.
  *   POST { name }
  *        → { exercise, created, aiFilled }. Existing name → created:false (no fill);
@@ -72,9 +73,15 @@ export async function GET(req: NextRequest) {
     if (eligible) {
       const filtered = await filterToEligible(result.exercises)
       const page = filtered.exercises.slice(0, limit ?? 50)
+      // Every count here is of the over-fetched sample, not of the catalog: the
+      // gates run in JS over at most 200 rows. Saying so is the difference
+      // between "45 movements are possible here" and "45 of the 200 we looked
+      // at" — a caller that cannot tell them apart will quote the wrong one.
       return NextResponse.json({
         exercises: page,
         total: filtered.exercises.length,
+        sampled: result.exercises.length,
+        catalog_total: result.total,
         excluded_count: filtered.excluded,
         excluded_by_equipment: filtered.excludedByEquipment,
         eligibility: 'filtered',

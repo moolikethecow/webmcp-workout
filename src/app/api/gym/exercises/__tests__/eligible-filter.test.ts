@@ -171,4 +171,28 @@ describe('GET /api/gym/exercises', () => {
     expect(body.exercises).toHaveLength(2)
     expect(body.excluded_by_equipment).toBeUndefined()
   })
+
+  it('says that its counts are a sample, not the catalog', async () => {
+    mockQuery.mockResolvedValue({
+      exercises: [
+        { id: 'ex-press', name: 'Overhead Press', equipment: 'barbell' },
+        { id: 'ex-curl', name: 'Dumbbell Curl', equipment: 'dumbbell' },
+      ],
+      // queryExercises reports the whole catalog here, not the page.
+      total: 1318,
+    })
+    mockExecute.mockResolvedValue({ rows: [] })
+    mockListGyms.mockResolvedValue([
+      { id: 'g1', name: 'Hotel', isDefault: true, equipment: { categories: ['dumbbell'], machines: [], machines_excluded: [] } },
+    ])
+
+    const body = await (await GET(req('http://x/api/gym/exercises?eligible=1'))).json()
+
+    // 1 eligible of 2 examined, out of a catalog of 1318. A caller that only
+    // sees `total` would say "1 of 1318 movements are possible", which is a
+    // different and false claim.
+    expect(body.total).toBe(1)
+    expect(body.sampled).toBe(2)
+    expect(body.catalog_total).toBe(1318)
+  })
 })

@@ -129,28 +129,26 @@ export const switchGym: WebMcpTool = {
 }
 
 /**
- * How much of the catalog survives the new gym.
+ * How much survives the new gym.
  *
  * A switch whose only evidence is "ok: true" tells an agent nothing about what
  * it just did to the option space, and the next draft would be the first hint.
  * One extra read makes the consequence part of the answer.
+ *
+ * The shape is deliberately explicit about being a sample. The eligibility
+ * gates run over an over-fetched page, so "45" means 45 of the 200 rows looked
+ * at, not 45 of the catalogue — and an agent handed a bare number will say the
+ * wrong one out loud.
  */
-async function eligibility(): Promise<{
-  eligibleExercises?: number
-  catalogSize?: number
-  excludedByEquipment?: number
-}> {
-  const [eligible, all] = await Promise.all([
-    agentFetch('/api/gym/exercises?eligible=1&limit=1'),
-    agentFetch('/api/gym/exercises?limit=1'),
-  ])
-  if (!eligible.ok || typeof eligible.json.total !== 'number') return {}
+async function eligibility(): Promise<Record<string, unknown>> {
+  const result = await agentFetch('/api/gym/exercises?eligible=1&limit=1')
+  if (!result.ok || typeof result.json.total !== 'number') return {}
   return {
-    eligibleExercises: eligible.json.total,
-    ...(typeof eligible.json.excluded_by_equipment === 'number'
-      ? { excludedByEquipment: eligible.json.excluded_by_equipment }
-      : {}),
-    ...(all.ok && typeof all.json.total === 'number' ? { catalogSize: all.json.total } : {}),
+    eligibleOfSampled: result.json.total,
+    sampled: result.json.sampled,
+    catalogSize: result.json.catalog_total,
+    excludedByEquipment: result.json.excluded_by_equipment,
+    note: 'Counts are over a sample of the catalog, not the whole of it.',
   }
 }
 

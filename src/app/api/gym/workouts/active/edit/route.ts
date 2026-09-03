@@ -19,8 +19,6 @@ import { ActiveEditRequest, applyActiveEdit } from '@/lib/gym/agent-edit'
  * round trip. See `lib/gym/agent-edit.ts` for the op vocabulary and invariants.
  */
 export async function POST(req: NextRequest) {
-  // TODO(workspace): read the request-scoped workspace from the cookie layer
-  // and run this inside that workspace's schema context.
   let body: unknown
   try {
     body = await req.json()

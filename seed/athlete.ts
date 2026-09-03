@@ -8,7 +8,7 @@
  *
  * Exercise names are copied VERBATIM from seed/catalog.json's `raw_name`
  * (== src/lib/fitness/exercise-catalog.json's `name`) — the vendored
- * free-exercise-db catalog, all lower-case, often verbose. There is no
+ * exercise dataset (see README § Data and media), all lower-case, often verbose. There is no
  * "Barbell Back Squat" or "Face Pull" in that catalog; the closest real
  * entries are used instead (see the comment on each key below). The app's
  * `displayExerciseName()` title-cases these for display — this file never

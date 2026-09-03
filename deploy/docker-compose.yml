@@ -1,23 +1,61 @@
+# Self-host: Postgres + the app + Caddy for TLS. Run from the repo root:
+#
+#   SITE_HOST=gym.example.com POSTGRES_PASSWORD=change-me \
+#     docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Every visitor gets a schema of their own inside the one database; nothing
+# else needs provisioning. WEBMCP_ORIGIN_TRIAL_TOKEN is optional — without it
+# Chrome needs chrome://flags/#enable-webmcp-testing, ChatGPT's browser needs
+# nothing.
 services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: webmcp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: webmcp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webmcp -d webmcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
   app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
     image: webmcp-workout:latest
     restart: unless-stopped
-    env_file: /opt/webmcp-workout/app.env
+    environment:
+      DATABASE_URL: postgres://webmcp:${POSTGRES_PASSWORD}@postgres:5432/webmcp
+      APP_TIMEZONE: ${APP_TIMEZONE:-UTC}
+      WEBMCP_ORIGIN_TRIAL_TOKEN: ${WEBMCP_ORIGIN_TRIAL_TOKEN:-}
     expose: ["3000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    environment:
+      SITE_HOST: ${SITE_HOST:?set SITE_HOST to the public hostname}
     ports: ["80:80", "443:443"]
     volumes:
-      - /opt/webmcp-workout/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on: [app]
+
 volumes:
+  pgdata:
   caddy_data:
   caddy_config:

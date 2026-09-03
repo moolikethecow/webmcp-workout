@@ -257,7 +257,7 @@ export async function applyLoadCorrection(
     if (activeRules.some((rule) => rule.overlaps)) {
       throw new LoadCorrectionError(
         'overlap',
-        'An active Strong-history correction already overlaps that date range',
+        'An active history correction already overlaps that date range',
       )
     }
     // Every active date range belongs to one load-basis transition. Inheriting

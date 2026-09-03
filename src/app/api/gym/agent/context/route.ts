@@ -45,8 +45,6 @@ const RULES = [
 ] as const
 
 export async function GET() {
-  // TODO(workspace): read the request-scoped workspace from the cookie layer
-  // and run these readers inside that workspace's schema context.
   try {
     await ensureGymSchema()
 

@@ -1,16 +1,16 @@
 /**
- * Exercise-catalog read/write for the /health "add & track exercises" surface.
- * Search the catalog (vendored free-exercise-db + every name the user's Strong history
- * created), add a catalog exercise to the TRACKED set, or create a brand-new
- * custom exercise. Read paths are pure-ish (DB only); writes are idempotent.
+ * Exercise-catalog read/write for the "add & track exercises" surface.
+ * Search the catalog (the vendored exercise dataset plus every custom name
+ * created here), add a catalog exercise to the TRACKED set, or create a
+ * brand-new custom exercise. Read paths are pure-ish (DB only); writes are
+ * idempotent.
  *
  * WHAT "TRACKED" MEANS (data model): an exercise carries a nullable `tracked_at`.
  * An exercise is "tracked" when `tracked_at IS NOT NULL` OR it already has logged
  * sets (history = implicitly tracked). Tracking is an explicit "keep this on my
- * radar" flag — it surfaces the exercise on /health (its muscle map credit, PR,
- * and volume) even before Strong has logged a single set of it, which is the gap
- * The user hit: exercises he wants to watch that aren't in his history yet. It does NOT
- * change logging (that stays in Strong) — it's a curation flag over the catalog.
+ * radar" flag — it surfaces the exercise (its muscle-map credit, PR and volume)
+ * before a single set of it has been logged. It does not change logging; it is a
+ * curation flag over the catalog.
  */
 import { sql } from 'drizzle-orm'
 

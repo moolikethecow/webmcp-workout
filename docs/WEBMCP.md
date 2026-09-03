@@ -34,7 +34,7 @@ useEffect(() => {
 neither exists — which is most browsers today — it logs one informational line
 and returns `{ supported: false }`. The app is unaffected. Each tool is
 registered inside its own `try`/`catch`, so one malformed schema cannot take the
-other thirteen down with it.
+the rest down with it.
 
 **Callbacks never close over React state.** A tool registered on first render
 would otherwise hand an agent a snapshot of whatever the UI was showing at mount.
@@ -146,7 +146,7 @@ constraint form on the dashboard.
 That markup *is* the tool. Chrome derives the schema from the controls — a
 `required` attribute becomes JSON Schema `required`, a `<select>` becomes an
 enum carrying its option labels as titles, `type="number"` a number, a checkbox
-a boolean — and publishes `report_training_constraint` alongside the fourteen
+a boolean — and publishes `report_training_constraint` alongside the sixteen
 registered ones.
 
 The reason to use it here is not that it saves a file. It is **who presses the

@@ -99,7 +99,7 @@ const CORRECTION: LoadCorrection = {
   endDate: null,
   divisor: 2,
   previousLoadBasis: 'total',
-  reason: 'Combined Strong load normalized to per-side weight',
+  reason: 'Combined load normalized to per-side weight',
   active: true,
   affectedSets: 192,
   createdAt: '2026-07-16T12:00:00.000Z',
@@ -156,18 +156,18 @@ describe('ExerciseDetailSheet load semantics', () => {
     })
   })
 
-  it('keeps Strong cleanup collapsed on Total, then previews and applies the exact conversion', async () => {
+  it('keeps history cleanup collapsed on Total, then previews and applies the exact conversion', async () => {
     const user = userEvent.setup()
     const onExerciseChanged = vi.fn()
     renderSheet(EXERCISE, onExerciseChanged)
 
     const normalize = screen.getByRole('button', {
-      name: 'Normalize combined Strong history…',
+      name: 'Normalize combined history…',
     })
-    expect(screen.queryByText('Strong history cleanup')).not.toBeInTheDocument()
+    expect(screen.queryByText('History cleanup')).not.toBeInTheDocument()
     await user.click(normalize)
 
-    expect(screen.getByText('Strong history cleanup')).toBeInTheDocument()
+    expect(screen.getByText('History cleanup')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Preview' })).toBeEnabled())
     await user.click(screen.getByRole('button', { name: 'Preview' }))
 
@@ -185,10 +185,10 @@ describe('ExerciseDetailSheet load semantics', () => {
       startDate: null,
       endDate: null,
       divisor: 2,
-      reason: 'Combined Strong load normalized to per-side weight',
+      reason: 'Combined load normalized to per-side weight',
     })
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('Corrected 192 Strong sets')
+      expect(toast.success).toHaveBeenCalledWith('Corrected 192 sets')
       expect(onExerciseChanged).toHaveBeenCalledWith({ loadBasis: 'per_side' })
     })
   })
@@ -214,7 +214,7 @@ describe('ExerciseDetailSheet load semantics', () => {
       CORRECTION.id,
     )
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('Strong weights restored')
+      expect(toast.success).toHaveBeenCalledWith('Original weights restored')
       expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument()
       expect(onExerciseChanged).toHaveBeenCalledWith({ loadBasis: 'total' })
     })

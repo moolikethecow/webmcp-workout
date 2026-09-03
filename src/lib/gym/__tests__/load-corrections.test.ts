@@ -30,7 +30,7 @@ function correctionRow(overrides: Record<string, unknown> = {}) {
     end_date: '2026-07-08',
     divisor: '2',
     previous_load_basis: 'total',
-    reason: 'Strong stored both arms together',
+    reason: 'Both arms were logged together',
     active: true,
     affected_sets: 192,
     created_at: '2026-07-16T12:00:00.000Z',
@@ -58,7 +58,7 @@ beforeEach(() => {
   mockTransaction.mockImplementation(async (callback) => callback({ execute: mockExecute }))
 })
 
-describe('Strong load corrections', () => {
+describe('Load corrections', () => {
   it('previews an inclusive date range without writing', async () => {
     mockExecute.mockResolvedValueOnce({
       rows: [{
@@ -118,7 +118,7 @@ describe('Strong load corrections', () => {
       exerciseId: EXERCISE_ID,
       startDate: '2024-10-16',
       endDate: '2026-07-08',
-      reason: 'Strong stored both arms together',
+      reason: 'Both arms were logged together',
     })
 
     expect(result.correction).toMatchObject({

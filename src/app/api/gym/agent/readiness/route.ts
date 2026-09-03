@@ -14,8 +14,6 @@ import { historyReadiness } from '@/lib/gym/readiness-source'
  * and not a physiological one.
  */
 export async function GET() {
-  // TODO(workspace): read the request-scoped workspace from the cookie layer
-  // and run this reader inside that workspace's schema context.
   try {
     await ensureGymSchema()
     const now = new Date()

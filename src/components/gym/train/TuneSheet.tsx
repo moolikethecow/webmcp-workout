@@ -6,7 +6,7 @@
  * the live workout came from a template and hasn't been tuned yet.
  *
  * Flow:
- *   1. POST { mode: 'tune', templateId } → a proposal (the LLM coach, seconds).
+ *   1. POST { mode: 'tune', templateId } → a proposal (deterministic, instant).
  *   2. Diff the proposal vs the current workout BY exerciseId (computeTuneDiff):
  *      kept / added / removed rows, shown diff-style with the added rows' `why`.
  *   3. [Apply] runs the store's remove then add ops to reshape the ACTIVE workout;

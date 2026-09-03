@@ -116,8 +116,6 @@ async function progressionPolicyFor(exerciseId: string): Promise<unknown> {
 }
 
 export async function GET(req: NextRequest) {
-  // TODO(workspace): read the request-scoped workspace from the cookie layer
-  // and run these readers inside that workspace's schema context.
   const requested = (new URL(req.url).searchParams.get('exercise') ?? '').trim()
   if (!requested) {
     return NextResponse.json({ error: 'exercise is required' }, { status: 400 })

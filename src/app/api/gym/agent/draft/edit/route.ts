@@ -240,8 +240,6 @@ async function applyDraftOp(payload: ProposalPayload, op: DraftOp): Promise<OpOu
 }
 
 export async function POST(req: NextRequest) {
-  // TODO(workspace): read the request-scoped workspace from the cookie layer
-  // and run these readers/writers inside that workspace's schema context.
   let body: unknown
   try {
     body = await req.json()

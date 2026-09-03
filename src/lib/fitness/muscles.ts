@@ -5,11 +5,11 @@
  * region ids never drift between the picture and the numbers.
  *
  * Why a curated mapper and not just the catalog's `primary_muscle`:
- *   - The vendored free-exercise-db catalog only carries a PRIMARY muscle, never
- *     secondaries — so a bench press would credit chest and nothing else.
- *   - the user's real Strong exercises don't match the catalog's names (his use the
- *     "(Barbell)"/"(Dumbbell)" suffix convention), so they're created on-demand
- *     with `primary_muscle = null` — i.e. NO catalog muscle at all.
+ *   - The vendored catalog's `primary_muscle` is one muscle, and its secondaries
+ *     are coarse — a bench press would credit chest and little else.
+ *   - Custom and imported exercise names rarely match the catalog's (the
+ *     "(Barbell)"/"(Dumbbell)" suffix convention is common), so they're created
+ *     on-demand with `primary_muscle = null` — i.e. NO catalog muscle at all.
  * So we resolve muscles from the exercise NAME first (keyword rules that know the
  * big compound lifts hit multiple groups), and fall back to the catalog's
  * primary_muscle only when the name teaches us nothing. Result: every real lift

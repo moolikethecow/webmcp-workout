@@ -550,7 +550,7 @@ export interface PatchExerciseInput {
 
 export class ActiveLoadCorrectionError extends Error {
   constructor() {
-    super('Undo the active Strong-history correction before switching to total load')
+    super('Undo the active history correction before switching to total load')
     this.name = 'ActiveLoadCorrectionError'
   }
 }

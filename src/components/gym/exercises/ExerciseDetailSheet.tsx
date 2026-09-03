@@ -510,12 +510,12 @@ function Preferences({
         </div>
         <p id="load-basis-help" style={{ ...note, margin: '6px 0 0', textAlign: 'left' }}>
           {activeCorrectionCount == null
-            ? 'Checking Strong-history corrections…'
+            ? 'Checking history corrections…'
             : activeCorrectionCount > 0
-              ? 'Undo the active Strong correction below before switching this exercise back to Total.'
+              ? 'Undo the active correction below before switching this exercise back to Total.'
               : loadBasis === 'per_side'
                 ? 'Log one side’s weight. Both is the default; Split lets left and right differ. This changes existing Both-row volume immediately.'
-                : 'The entered number is the total load. Use Strong history cleanup below to normalize combined side loads atomically.'}
+                : 'The entered number is the total load. Use history cleanup below to normalize combined side loads atomically.'}
         </p>
       </div>
 
@@ -586,7 +586,7 @@ function StrongHistoryCleanup({
       onActiveCount(rows.length)
       return rows
     } catch {
-      toast.error("Couldn't load Strong-history corrections")
+      toast.error("Couldn't load history corrections")
       return null
     } finally {
       setBusy(null)
@@ -624,12 +624,12 @@ function StrongHistoryCleanup({
     try {
       await applyLoadCorrection(exerciseId, {
         ...scope,
-        reason: 'Combined Strong load normalized to per-side weight',
+        reason: 'Combined load normalized to per-side weight',
       })
       setPreview(null)
       await refresh()
       onLoadBasisChanged('per_side')
-      toast.success(`Corrected ${preview.affectedSets} Strong sets`)
+      toast.success(`Corrected ${preview.affectedSets} sets`)
     } catch {
       setBusy(null)
       toast.error("Couldn't apply that correction")
@@ -644,7 +644,7 @@ function StrongHistoryCleanup({
       if (remaining) {
         onLoadBasisChanged(remaining.length > 0 ? 'per_side' : correction.previousLoadBasis)
       }
-      toast.success('Strong weights restored')
+      toast.success('Original weights restored')
     } catch {
       setBusy(null)
       toast.error("Couldn't restore those weights")
@@ -656,7 +656,7 @@ function StrongHistoryCleanup({
     return (
       <div style={{ borderTop: '1px solid var(--border-muted)', paddingTop: 14 }}>
         <button type="button" onClick={() => setExpanded(true)} style={{ ...moreBtn, minHeight: 44, marginTop: 0 }}>
-          Normalize combined Strong history…
+          Normalize combined history…
         </button>
       </div>
     )
@@ -664,9 +664,9 @@ function StrongHistoryCleanup({
 
   return (
     <div style={{ borderTop: '1px solid var(--border-muted)', paddingTop: 14 }}>
-      <div style={prefLabel}>Strong history cleanup</div>
+      <div style={prefLabel}>History cleanup</div>
       <p style={{ ...note, margin: '4px 0 10px', textAlign: 'left' }}>
-        If Strong stored both arms added together, preview a divide-by-2 correction. The raw values stay recoverable and future re-imports keep the fix.
+        If past sets were logged with both sides added together, preview a divide-by-2 correction. The raw values stay recoverable.
       </p>
       {editorVisible && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <label style={historyDateLabel}>
@@ -701,7 +701,7 @@ function StrongHistoryCleanup({
           </button>
         </div>
       )}
-      {preview?.affectedSets === 0 && <p style={{ ...note, margin: '8px 0 0', textAlign: 'left' }}>No completed Strong sets match that range.</p>}
+      {preview?.affectedSets === 0 && <p style={{ ...note, margin: '8px 0 0', textAlign: 'left' }}>No completed sets match that range.</p>}
       {corrections.map((correction) => (
         <div key={correction.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 10 }}>
           <span style={{ ...note, margin: 0, textAlign: 'left' }}>

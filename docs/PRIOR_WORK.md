@@ -9,7 +9,7 @@ The first commit in this repository (`chore: extract gym engine and UI from Star
 - the workout logger and gym UI (`src/components/gym/**`, `src/components/health/**`)
 - the deterministic training engine (`src/lib/gym/**`, `src/lib/fitness/**`, `src/lib/units/**`, `src/lib/gym-client/**`)
 - the gym HTTP routes it already had (`src/app/api/gym/**`, except the paths listed below)
-- the exercise catalog (`src/lib/fitness/exercise-catalog.json`, derived from an open exercise dataset)
+- the exercise catalog (`src/lib/fitness/exercise-catalog.json`, vendored from [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset), MIT — see the README's *Data and media* section for the media terms)
 - the tests that came with the above
 
 Parts of the private system were deliberately **not** extracted (its adaptive planner, its memory and coaching layers, wearable-fused recovery, and the derivation pipeline for exercise constraint profiles). Where the copied code referenced them, thin shims at the same import paths replace them.
@@ -27,4 +27,4 @@ Everything that makes this a WebMCP application was written during the submissio
 - `seed/**` — the fictional athlete and the precomputed exercise constraint profiles
 - the dashboard page, branding, deployment files, and all documentation in `docs/`
 
-Use `git log --format='%h %ad %s' --date=iso` to see the timestamps.
+Use `git log --format='%h %ad %s' --date=iso` to see the timestamps. The private repository's history for the extracted files predates the submission period and can be shown to the judges on request.

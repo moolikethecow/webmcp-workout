@@ -104,7 +104,7 @@ Every browser profile gets its own workspace (a Postgres schema) on first visit.
 | Client | What to do |
 |---|---|
 | **ChatGPT** | Desktop app (latest), a **Work or Codex** chat on **GPT-5.6 Sol or Terra**. Open the URL in the built-in browser and ask in the chat beside it. ChatGPT on the web, the Luna model, and Enterprise/Edu workspaces cannot see site tools. |
-| **Chrome 149+** | Just open **https://gym.mootoo.co** — the origin carries a WebMCP origin-trial token, so `document.modelContext` is there on load. For a local build enable `chrome://flags/#enable-webmcp-testing`; `chrome://flags/#devtools-webmcp-support` adds a DevTools panel that lists and invokes tools. |
+| **Chrome 149+** | Just open **https://gym.mootoo.co** — the origin carries a WebMCP origin-trial token, so `document.modelContext` is there on load. The form tool needs Chrome 152 or newer, where the declarative half of the API landed. For a local build enable `chrome://flags/#enable-webmcp-testing`; `chrome://flags/#devtools-webmcp-support` adds a DevTools panel that lists and invokes tools. |
 | **Anything else** | Add `?webmcp=shim` for a console harness: `window.__webmcp.tools()` and `window.__webmcp.call(name, args)`. |
 
 If an agent says it cannot attach to the tab while the page reads *Agent-ready*, the chat is not a Work/Codex session on Sol or Terra. The page is fine; switch the chat.
@@ -119,4 +119,10 @@ The suite covers the engine invariants (constraint exclusion, completed-set pres
 
 ## License
 
-AGPL-3.0. See [LICENSE](LICENSE).
+AGPL-3.0. See [LICENSE](LICENSE). Copyright © 2026 Moo Olaniyan.
+
+### Data and media
+
+- **Exercise catalog** — names, muscle metadata and instructions come from [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset) (MIT), vendored at a pinned commit as `seed/catalog.json`. The `injury_profile` on every row (the biomechanical demand profile the eligibility gate reads) was precomputed for this catalog and is licensed with the rest of the repository.
+- **Exercise GIFs** are **© Gym visual** ([gymvisual.com](https://gymvisual.com/)), redistributed by that dataset with permission at 180×180. This repository does not contain them: the app proxies each one from the pinned upstream commit on first view (`src/app/api/gym/exercise-image`). They are not covered by the AGPL, and reuse is governed by Gym visual's terms. Without them the app renders a muscle-map thumbnail instead.
+- The legacy JPEG frame path supports [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense).

@@ -1,22 +1,23 @@
 /**
- * Draft generation + the validation gate (GYM_PLAN §6, review-hardened).
+ * Draft generation (GYM_PLAN §6).
  *
- * The contract that keeps LLM plan quality safe:
- *   1. Deterministic pre-filter (novelty.ts) DEALS a slate from staleness-weighted
- *      rotation pools — the LLM never free-picks from ~1000 exercise names.
- *   2. The slate + alternates become an ENUMERATED candidate list (40–120 rows,
- *      `id | name | pattern | staleness`) passed in-prompt as the ONLY vocabulary.
- *   3. The LLM returns ids + order + set/rep schemes + `why` + a rationale.
- *   4. A PURE, hard-tested validation gate checks numeric/structural constraints
- *      (every id ∈ candidates; targets within ±15% of history-implied load unless
- *      the rationale says deload/injury; recorded demand constraints; per-region volume within
- *      ±20% of the anchor split). One retry with violations quoted verbatim, then
- *      a DETERMINISTIC FALLBACK (the slate + policy-engine targets).
- *   5. Persist to `workout_proposals` (supersede prior proposed rows for the date);
+ * Everything in this file is deterministic:
+ *   1. A pre-filter (novelty.ts) DEALS a slate from staleness-weighted rotation
+ *      pools, so a draft never free-picks from ~1300 exercise names.
+ *   2. Region volume targets come from the mode, the focus, the recent split and
+ *      the muscle state; the policy engine supplies every target load.
+ *   3. Active training constraints are enforced on the slate with the same gate
+ *      search and live edits use (`injurySafeFallback`).
+ *   4. Persist to `workout_proposals` (supersede prior proposed rows for the date);
  *      `context_hash` recomputed on open flags staleness.
  *
- * User-initiated only (GYM_PLAN §2.7) — nothing generates ambiently; the LLM call
- * NEVER runs on GET.
+ * The system this was extracted from runs a model-driven lane over the same
+ * slate behind a validation gate. That lane is not part of this repository:
+ * `generator` on a proposal is always 'fallback' here, and the payload's
+ * rationale says so.
+ *
+ * User-initiated only (GYM_PLAN §2.7) — nothing generates ambiently, and GET
+ * never generates.
  */
 import { createHash } from 'crypto'
 
@@ -93,12 +94,12 @@ export interface ProposalExercise {
   name: string
   sets: number
   reps: number | null
-  /** Ghost target weight (policy-engine derived unless the LLM deviated w/ reason). */
+  /** Ghost target weight (policy-engine derived). */
   targetWeight: number | null
   /** Superset grouping (opaque id; same value ⇔ same group). Null = ungrouped. */
   supersetGroup: number | null
   restSeconds: number | null
-  /** One-line "why this exercise" from the LLM (or the deterministic fallback). */
+  /** One-line "why this exercise" from the deterministic dealer. */
   why: string
   /** Primary muscle region this slot targets (for the UI's muscle chips). */
   region: MuscleRegion | null
@@ -138,8 +139,8 @@ export interface Proposal {
   /** Read-boundary display hint. Persisted targetWeight values remain canonical lb. */
   weightUnit?: WeightUnit
   /** Which lane produced this draft (generatePlan only, transient — not
-   *  persisted). 'fallback' = the LLM lane failed/was rejected and the draft was
-   *  dealt mechanically; callers must surface that honestly. */
+   *  persisted). Always 'fallback' in this repository: the draft was dealt
+   *  mechanically, and callers surface that honestly. */
   generator?: 'llm' | 'fallback'
 }
 
@@ -154,7 +155,7 @@ export interface GeneratePlanInput {
   /** draft: free-text focus ("pull day", "legs + core") mapped to regions. */
   focus?: string
   /** Hard cap on the exercise count (short sessions, return-from-layoff). The
-   *  cap scales region targets BEFORE the slate is dealt, so the LLM lane and
+   *  cap scales region targets BEFORE the slate is dealt, so the dealer and
    *  the deterministic fallback both honor it. Ignored for tune (an explicit
    *  template's structure wins, same as injury steering). */
   maxExercises?: number
@@ -180,7 +181,7 @@ export class TemplateAnchorUnavailableError extends Error {
 }
 
 // ---------------------------------------------------------------------------
-// Candidate list (the LLM's ONLY vocabulary)
+// Candidate list (the draft's ONLY vocabulary)
 // ---------------------------------------------------------------------------
 
 /** One enumerated candidate row. */
@@ -203,7 +204,7 @@ const MAX_CANDIDATES = 120
 /**
  * Build the enumerated candidate list: the dealt slate's exercises PLUS staleness-
  * ranked alternates from each dealt region's pool, deduped, capped [40,120]. This
- * is the closed vocabulary the LLM must return ids from. Pure.
+ * is the closed vocabulary a draft may draw ids from. Pure.
  */
 export function buildCandidates(
   slate: Slate,
@@ -571,8 +572,8 @@ function prependSteerNote(rationale: string, note: string | null): string {
 // Deterministic fallback (slate + policy-engine targets)
 // ---------------------------------------------------------------------------
 
-/** Turn the dealt slate straight into a proposal payload — no LLM. The rationale
- *  is honest ("deterministic fallback"). Used when the LLM twice fails the gate,
+/** Turn the dealt slate straight into a proposal payload. The rationale
+ *  is honest ("deterministic fallback"). The only generator in this repository,
  *  or is unavailable. Pure given the slate + defaults. */
 export function fallbackPayload(
   slate: Slate,
@@ -951,8 +952,8 @@ function primaryRegionFor(name: string, primaryMuscle: string | null, secondary:
 
 /**
  * Generate a plan (draft | tune | shuffle) and persist it as a `workout_proposals`
- * row (superseding prior proposed rows for today). Runs the LLM once + one retry on
- * gate violations, then falls back deterministically. Returns the persisted
+ * row (superseding prior proposed rows for today). Deals the slate
+ * deterministically under the active constraints. Returns the persisted
  * Proposal.
  */
 export async function generatePlan(input: GeneratePlanInput): Promise<Proposal> {
@@ -1126,7 +1127,7 @@ export async function generatePlan(input: GeneratePlanInput): Promise<Proposal> 
 
 /** The anchor split the gate measures against: the SESSION's final region
  *  targets — post injury-steer, readiness modifiers, and the maxExercises cap —
- *  i.e. the exact numbers the prompt's ## TARGET block asks the LLM to hit. The
+ *  i.e. the exact numbers the draft is asked to hit. The
  *  historical recent split is only a fallback for a slate region the targets
  *  don't cover, then the slate's own volume (so a from-scratch draft conserves
  *  against itself rather than failing on an empty anchor). Anchoring on the raw
@@ -1177,8 +1178,8 @@ async function readDefaultRestSeconds(): Promise<number> {
 }
 
 /** Fill any null per-exercise restSeconds with the user's default rest setting.
- *  Pure — non-null overrides (an explicit set_rest, or a per-exercise value the
- *  LLM chose) are preserved. */
+ *  Pure — non-null overrides (an explicit set_rest, or a per-exercise value
+ *  already on the payload) are preserved. */
 function withDefaultRest(payload: ProposalPayload, defaultRest: number): ProposalPayload {
   return {
     ...payload,
@@ -1426,13 +1427,13 @@ export async function updateProposalPayload(
 }
 
 // ---------------------------------------------------------------------------
-// getTodayProposal (GET — NEVER runs the LLM)
+// getTodayProposal (GET — never generates)
 // ---------------------------------------------------------------------------
 
 /**
  * The latest 'proposed' proposal for today + a `stale` flag (the recomputed context
  * hash no longer matches what it was generated with → the UI offers a refresh).
- * Assembles the (cached) context to recompute the hash — NO LLM.
+ * Assembles the (cached) context to recompute the hash — never generates.
  */
 export async function getTodayProposal(): Promise<Proposal | null> {
   const ctx = await assembleCoachContext()

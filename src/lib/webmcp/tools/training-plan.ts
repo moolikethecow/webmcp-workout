@@ -23,9 +23,11 @@ export const getTrainingPlan: WebMcpTool = {
     'ordered days and which one comes next — plus how many sessions have been completed. When a plan is ' +
     'active it DECIDES the next session: report its next day rather than choosing one from muscle ' +
     'readiness, from whichever template was performed least recently, or from what has never been done. ' +
-    'Readiness explains why a day suits; it does not choose. Start what this returns with ' +
-    'start_workout from "plan". If no plan is active it says so, and only then is drafting one with ' +
-    'draft_workout the right next step. Read-only.',
+    'Readiness explains why a day suits; it does not choose. Do not just NAME the next session — the ' +
+    'person cannot see a name: stage it with draft_workout mode "tune" and the returned ' +
+    'nextDay.templateId so it appears in the app as a reviewable draft, then start_workout from "plan" ' +
+    'when they say go. If no plan is active it says so, and only then is a fresh draft_workout the ' +
+    'right next step. Read-only.',
   inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   annotations: { readOnlyHint: true },
   async execute() {
@@ -52,6 +54,7 @@ export const getTrainingPlan: WebMcpTool = {
         completedSessions: active.completedSessions,
         days: (active.days ?? []).map((day) => ({
           name: day.name,
+          templateId: day.templateId,
           templateName: day.templateName,
           exerciseCount: day.exerciseCount,
         })),
@@ -59,6 +62,11 @@ export const getTrainingPlan: WebMcpTool = {
           ? {
               dayId: active.nextDay.id,
               name: active.nextDay.name,
+              // The id, not just the name: staging the day is
+              // draft_workout(mode:"tune", templateId), and a read tool that
+              // returns only a name leaves that call undrivable — the agent can
+              // describe the session it cannot put on screen.
+              templateId: active.nextDay.templateId,
               templateName: active.nextDay.templateName,
               available: active.nextDay.available,
             }
@@ -66,7 +74,9 @@ export const getTrainingPlan: WebMcpTool = {
       },
       note: active.nextDay
         ? `"${active.name}" is running and its next session is ${active.nextDay.name}. ` +
-          'That is the answer to "what\'s next" — start it with start_workout from "plan".'
+          'Put it on screen before talking about it: draft_workout with mode "tune" and templateId ' +
+          `"${active.nextDay.templateId}" stages it in the app as a reviewable draft the person can see ` +
+          'and adjust. start_workout from "plan" begins it live instead, once they have said go.'
         : `"${active.name}" is running but has no next day available; say so rather than substituting one.`,
     })
   },
@@ -75,6 +85,7 @@ export const getTrainingPlan: WebMcpTool = {
 interface PlanDayRow {
   id: string
   name: string
+  templateId: string
   templateName: string | null
   exerciseCount?: number
   available?: boolean

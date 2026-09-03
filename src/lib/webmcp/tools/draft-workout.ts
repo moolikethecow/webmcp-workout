@@ -7,7 +7,9 @@ export const draftWorkout: WebMcpTool = {
   description:
     "Builds a deterministic starting draft from readiness, constraints and equipment. The adaptive " +
     'planner is not part of this repo. The draft is a proposal, not a session — nothing is logged until ' +
-    'start_workout. mode "draft" deals a fresh one; "tune" anchors to a saved template; "shuffle" ' +
+    'start_workout. mode "draft" deals a fresh one; "tune" anchors to a saved template — including the ' +
+    "day an active plan says is next, which is what you should stage rather than dealing a fresh " +
+    'rotation over the top of a running programme (get_training_plan returns that templateId); "shuffle" ' +
     'rotates the exercises of an existing draft. Follow it with edit_workout_draft to adjust, and tell ' +
     'the person what the draft actually contains rather than describing it in the abstract.',
   inputSchema: {

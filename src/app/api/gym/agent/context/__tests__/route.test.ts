@@ -33,7 +33,7 @@ const PLAN = {
   status: 'active',
   scheduleMode: 'flexible',
   completedSessions: 3,
-  nextDay: { id: 'day-1', name: 'Upper A', templateName: 'Upper A', available: true },
+  nextDay: { id: 'day-1', name: 'Upper A', templateId: 'tpl-1', templateName: 'Upper A', available: true },
 }
 
 beforeEach(() => {
@@ -54,6 +54,24 @@ describe('agent context', () => {
       completedSessions: 3,
       nextDay: { name: 'Upper A', templateName: 'Upper A', available: true },
     })
+  })
+
+  it('carries the templateId, because a name cannot be staged', async () => {
+    const body = await (await GET()).json()
+
+    // Staging the day is draft_workout(mode:"tune", templateId). Returning only
+    // the name leaves that call undrivable: the agent can describe a session it
+    // has no way to put on screen, which is exactly what "the workout never
+    // showed up in the staging area" looks like from the outside.
+    expect(body.state.activePlan.nextDay.templateId).toBe('tpl-1')
+  })
+
+  it('tells an agent to stage the day, not just name it', async () => {
+    const body = await (await GET()).json()
+    const rule = (body.rules as string[]).find((line) => line.includes('decides which session is next'))
+
+    expect(rule).toMatch(/stage it with draft_workout/)
+    expect(rule).toMatch(/templateId/)
   })
 
   it('tells an agent the plan decides the next session, not readiness', async () => {

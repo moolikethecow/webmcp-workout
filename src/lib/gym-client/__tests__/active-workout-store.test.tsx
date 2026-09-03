@@ -873,6 +873,27 @@ describe('ActiveWorkoutStore mutations', () => {
 })
 
 describe('ActiveWorkoutStore agent-collaboration revisions', () => {
+  it('live-refreshes from the start surface after an agent starts a workout', async () => {
+    const started = mkWorkout([mkExercise({ sets: [mkSet({ clientSetId: 's1' })] })])
+    const api = apiFor(started)
+    vi.mocked(api.getActive).mockResolvedValueOnce({ active: null }).mockResolvedValue(started)
+    const { result } = renderHook(() => useActiveWorkoutStore(), { wrapper: wrapperFor(api) })
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(result.current.workout).toBeNull()
+    act(() => invalidateResources(['gym']))
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(api.getActive).toHaveBeenCalledTimes(2)
+    expect(result.current.workout).toMatchObject({ id: 'w1', status: 'active' })
+  })
+
   it('live-refreshes the open logger after an executed agent gym edit', async () => {
     const initial = mkWorkout([
       mkExercise({ sets: [mkSet({ clientSetId: 's1' })], restSeconds: 120 }),

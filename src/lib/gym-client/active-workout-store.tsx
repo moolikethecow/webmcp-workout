@@ -1071,11 +1071,13 @@ export function ActiveWorkoutProvider({
   }, [refreshCanonical])
 
   // Every agent surface invalidates `gym` after an executed
-  // active-workout edit. Re-read immediately so the agent's change appears in the
+  // gym mutation. Re-read immediately so the agent's change appears in the
   // open logger; refreshCanonical preserves/rebases any local values still in
-  // the optimistic queue.
+  // the optimistic queue. This must also run while no workout is currently
+  // loaded: start_workout is precisely the mutation that turns the start
+  // surface into the live logger.
   useLiveRefresh('gym', () => {
-    if (workoutRef.current) void refreshCanonical()
+    void refreshCanonical()
   })
 
   useEffect(() => {

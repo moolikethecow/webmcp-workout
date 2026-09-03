@@ -62,6 +62,7 @@ same form, and still waits for your press. See
 | `get_training_context` | read | State summary and the collaboration rules. Call first. |
 | `get_active_workout` | read | The exact live session: exercises, sets, completions, rest, revision. |
 | `edit_active_workout` | write | Add, remove, replace, reorder, re-prescribe the *unfinished* part; revision-checked. |
+| `log_active_sets` | write | Log actual performed sets with an explicit revision and measurements; never guesses from a target or prior session. |
 | `search_exercises` | read | Catalog search filtered to exercises eligible under current constraints and equipment. |
 | `get_muscle_readiness` | read | Per-region readiness derived from training history. |
 | `get_training_constraints` / `set_training_constraint` | read / write | User-stated limitations that the eligibility engine enforces. Not a diagnosis. |

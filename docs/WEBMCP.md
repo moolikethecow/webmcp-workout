@@ -109,9 +109,10 @@ front of them changed.
 | `start_workout` | | `POST /api/gym/plans/[id]/start` (from the plan), `POST /api/gym/plan` (from a draft) or `POST /api/gym/workouts` | gym, dashboard |
 | `edit_workout_draft` | | `POST /api/gym/agent/draft/edit` | gym |
 | `edit_active_workout` | | `POST /api/gym/workouts/active/edit` | gym |
+| `log_active_sets` | | `PUT /api/gym/workouts/[id]/sets` | gym |
 
 Page sets are defined in `src/lib/webmcp/tools/index.ts`. A tool list is a
-prompt: offering `edit_active_workout` on the history page would invite an agent
+prompt: offering `edit_active_workout` or `log_active_sets` on the history page would invite an agent
 to try it where it makes no sense, so it is not offered there.
 
 ### The sequencer has to be readable

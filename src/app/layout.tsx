@@ -7,7 +7,7 @@ import './globals.css'
 
 const DESCRIPTION =
   'A WebMCP-native workout tracker: you log the sets, an agent in the same browser reshapes what is left. ' +
-  'Fifteen page-scoped tools on document.modelContext, one live session, one set of rules.'
+  'Sixteen page-scoped tools on document.modelContext, one live session, one set of rules.'
 
 export const metadata: Metadata = {
   title: { default: BRAND.name, template: `%s · ${BRAND.name}` },

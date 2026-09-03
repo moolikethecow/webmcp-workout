@@ -26,8 +26,8 @@ function nestedObjectSchemas(schema: unknown, out: JsonSchemaObject[] = []): Jso
 }
 
 describe('tool definitions', () => {
-  it('exposes fifteen tools plus the form stand-in, with unique snake_case names', () => {
-    expect(ALL_TOOLS).toHaveLength(15)
+  it('exposes sixteen tools plus the form stand-in, with unique snake_case names', () => {
+    expect(ALL_TOOLS).toHaveLength(16)
     expect(DECLARATIVE_FALLBACKS).toHaveLength(1)
     const names = EVERY_TOOL.map((tool) => tool.name)
     expect(new Set(names).size).toBe(names.length)
@@ -89,7 +89,9 @@ describe('tool definitions', () => {
     const history = toolsForPage('history').map((tool) => tool.name)
 
     expect(gym).toContain('edit_active_workout')
+    expect(gym).toContain('log_active_sets')
     expect(dashboard).not.toContain('edit_active_workout')
+    expect(dashboard).not.toContain('log_active_sets')
     expect(history).not.toContain('edit_active_workout')
     expect(dashboard).toContain('draft_workout')
     expect(history).not.toContain('draft_workout')

@@ -1,5 +1,5 @@
 /**
- * The fifteen registered tools, and which pages offer them — plus the
+ * The sixteen registered tools, and which pages offer them — plus the
  * code-defined stand-in for the dashboard's form tool.
  *
  * Registration is per page on purpose. A tool list is a prompt: offering
@@ -20,6 +20,7 @@ import { getMuscleReadiness } from './get-muscle-readiness'
 import { getTrainingContext } from './get-training-context'
 import { getTrainingPlan } from './training-plan'
 import { getWorkoutHistory } from './get-workout-history'
+import { logActiveSets } from './log-active-sets'
 import { reportTrainingConstraint } from './report-training-constraint'
 import { searchExercises } from './search-exercises'
 import { startWorkout } from './start-workout'
@@ -45,7 +46,13 @@ const EVERYWHERE: WebMcpTool[] = [
 /** Planning: build a draft, shape it, commit to it. */
 const PLANNING: WebMcpTool[] = [draftWorkout, startWorkout]
 
-export const ALL_TOOLS: WebMcpTool[] = [...EVERYWHERE, ...PLANNING, editActiveWorkout, editWorkoutDraft]
+export const ALL_TOOLS: WebMcpTool[] = [
+  ...EVERYWHERE,
+  ...PLANNING,
+  editActiveWorkout,
+  editWorkoutDraft,
+  logActiveSets,
+]
 
 /**
  * Tools the dashboard also declares as `<form toolname>` markup. These are not
@@ -64,7 +71,7 @@ export function toolsForPage(page: GymPage): WebMcpTool[] {
   switch (page) {
     case 'gym':
       // The session in front of you: everything.
-      return [...EVERYWHERE, ...PLANNING, editActiveWorkout, editWorkoutDraft]
+      return [...EVERYWHERE, ...PLANNING, editActiveWorkout, editWorkoutDraft, logActiveSets]
     case 'dashboard':
       // Planning happens here; live editing does not.
       return [...EVERYWHERE, ...PLANNING]
@@ -87,6 +94,7 @@ export {
   getTrainingPlan,
   getWorkoutHistory,
   listGyms,
+  logActiveSets,
   reportTrainingConstraint,
   searchExercises,
   setTrainingConstraint,

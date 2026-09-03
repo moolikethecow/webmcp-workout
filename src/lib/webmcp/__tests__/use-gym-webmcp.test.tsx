@@ -67,7 +67,7 @@ describe('useGymWebMCP on the dashboard', () => {
 
     const { result } = renderHook(() => useGymWebMCP('gym'))
     await waitFor(() => expect(result.current.checked).toBe(true))
-    expect(result.current.registered).toHaveLength(15)
+    expect(result.current.registered).toHaveLength(16)
     expect(result.current.registered).not.toContain('report_training_constraint')
   })
 

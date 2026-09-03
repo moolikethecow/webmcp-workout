@@ -98,6 +98,17 @@ describe('ConstraintForm', () => {
     )
   })
 
+  it('does not claim a nagging constraint excluded anything', async () => {
+    const { container } = render(<ConstraintForm onAdded={vi.fn()} />)
+    const form = container.querySelector('form')!
+    ;(form.querySelector('select[name="region"]') as HTMLSelectElement).value = 'knees'
+    ;(form.querySelector('select[name="severity"]') as HTMLSelectElement).value = 'nagging'
+
+    const answer = await submitAsAgent(form)
+    expect(answer).toMatch(/Nothing is excluded by this/)
+    expect(answer).not.toMatch(/are now excluded/)
+  })
+
   it('reports the server’s own refusal back to the agent', async () => {
     vi.stubGlobal(
       'fetch',

@@ -93,10 +93,14 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
           if (fromAgent) {
             afterMutation('report_training_constraint', `Added a ${values.severity} constraint on ${named}.`)
           }
-          return (
-            `Recorded: ${named} — ${values.severity}. Movements that load ${site} are now excluded ` +
-            `from search, drafts and live edits until it is resolved.`
-          )
+          // Only limiting and out exclude anything. Saying "now excluded" after a
+          // nagging constraint would hand the agent a false account of what it
+          // just did, and it would repeat it to the person out loud.
+          return values.severity === 'nagging'
+            ? `Recorded: ${named} — nagging. Nothing is excluded by this: it is noted so it can be ` +
+              `trained around. Set it to limiting or out to actually exclude movements that load ${site}.`
+            : `Recorded: ${named} — ${values.severity}. Movements that load ${site} are now excluded ` +
+              `from search, drafts and live edits until it is resolved.`
         } finally {
           setBusy(false)
         }

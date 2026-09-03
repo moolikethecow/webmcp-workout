@@ -11,7 +11,7 @@ Record on https://gym.mootoo.co in a fresh browser profile (fresh workspace). Us
 | 1:25 | Tap another set done by hand. Type: *What should I do next?* | "I keep training. The agent re-reads the session and sees what I just did." |
 | 1:45 | Type: *Before I go heavier on incline bench, am I actually progressing?* | "History and rules live in the app. Six sessions, a double-progression policy, top of the range on all three sets, so the next target is eighty." |
 | 2:05 | Dashboard. Ask: *my left shoulder is bad today — note it as limiting.* The constraint form fills in — region, severity, "left shoulder" — **and stops**, highlighted *Filled in by your agent*. Pause on it. Then press Add yourself. | "This one is a form, not a registered tool. In Chrome the markup is the tool. In ChatGPT's browser, which has no declarative API, the same name is registered in code and points at the same form. Either way the agent can put a claim about my body on screen. It can't commit it. I press the button." |
-| 2:30 | Readiness figure and the new constraint in the list. | "Fourteen tools on document.modelContext plus that form — same origin, no API keys. What the agent may do alone is registered in code. What needs my hand is a form." |
+| 2:30 | Readiness figure and the new constraint in the list. | "Fifteen tools on document.modelContext plus that form — same origin, no API keys. What the agent may do alone is registered in code. What needs my hand is a form." |
 | 2:45 | Repo README, then the app. | "The open surface of Stark, a larger private system. AGPL. Every visitor gets a private workspace." |
 
 Cuts if long: shorten 2:30 to the one sentence about the split. **Never cut 0:55 or 2:05** — they are the two beats nothing else in the field will have.

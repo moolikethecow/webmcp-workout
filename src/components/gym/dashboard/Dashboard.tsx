@@ -159,7 +159,10 @@ export default function Dashboard() {
       `}</style>
 
       <div className="hlth-sections">
-        <PageHead title={BRAND.name} sub={BRAND.tagline} />
+        <PageHead
+          title={BRAND.name}
+          sub={`${BRAND.tagline} You log the sets; an agent in the same browser reshapes what's left — one live session, one set of rules.`}
+        />
 
         {/* The top bar's pill and section 05 already say what this browser can do;
             the strip here is the narration of what an agent did, when it has. */}
@@ -207,8 +210,13 @@ export default function Dashboard() {
               </HCard>
             </section>
 
+            <section id="agent">
+              <SecHead num="02">Work with your agent</SecHead>
+              <AgentPanel status={webmcp} page="dashboard" />
+            </section>
+
             <section>
-              <SecHead num="02">Recent training</SecHead>
+              <SecHead num="03">Recent training</SecHead>
               <HCard pad={16}>
                 {data.sessions.length === 0 ? (
                   <p style={note}>{loading ? 'Loading…' : 'No completed sessions yet.'}</p>
@@ -233,7 +241,7 @@ export default function Dashboard() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <section>
-              <SecHead num="03">Readiness</SecHead>
+              <SecHead num="04">Readiness</SecHead>
               <HCard pad={16}>
                 {loading && data.readiness.length === 0 ? (
                   <p style={note}>Loading…</p>
@@ -244,7 +252,7 @@ export default function Dashboard() {
             </section>
 
             <section>
-              <SecHead num="04">Training constraints</SecHead>
+              <SecHead num="05">Training constraints</SecHead>
               <HCard pad={16}>
                 {data.constraints.length === 0 ? (
                   <p style={note}>{loading ? 'Loading…' : 'No active constraints.'}</p>
@@ -268,11 +276,6 @@ export default function Dashboard() {
                 </p>
                 <ConstraintForm onAdded={load} />
               </HCard>
-            </section>
-
-            <section id="agent">
-              <SecHead num="05">Work with your agent</SecHead>
-              <AgentPanel status={webmcp} page="dashboard" />
             </section>
           </div>
         </div>

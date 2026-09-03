@@ -1,4 +1,6 @@
-# Workout
+# Spot
+
+*Your agent spots you — it can change what's next, but it can't touch what you've already lifted.*
 
 **A WebMCP-native workout tracker where a person and an AI agent manage the same live training session.**
 

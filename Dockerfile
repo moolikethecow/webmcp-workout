@@ -10,9 +10,9 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ARG NEXT_PUBLIC_PRODUCT_NAME=Workout
-ARG NEXT_PUBLIC_PRODUCT_SHORT_NAME=Workout
-ARG NEXT_PUBLIC_PRODUCT_TAGLINE="Train with your agent."
+ARG NEXT_PUBLIC_PRODUCT_NAME=Spot
+ARG NEXT_PUBLIC_PRODUCT_SHORT_NAME=Spot
+ARG NEXT_PUBLIC_PRODUCT_TAGLINE="Your agent spots you."
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 

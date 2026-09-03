@@ -9,8 +9,8 @@
 5. Deadline: **Thu 2026-09-03 13:00 PT**.
 
 
-**Project name:** Workout — a WebMCP-native training partner
-**Tagline:** The human logs the sets. The agent reshapes what's left. Same live workout, same rules.
+**Project name:** Spot — a WebMCP-native training partner
+**Tagline:** Your agent spots you. It changes what's next; it can't touch what you've already lifted.
 **Live URL:** https://gym.mootoo.co (no login; every visitor gets a private seeded workspace)
 **Repo:** https://github.com/moolikethecow/webmcp-workout (AGPL-3.0)
 

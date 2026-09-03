@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { BRAND } from '@/lib/brand'
 import { ensureGymSchema } from '@/lib/db/ensure-fitness'
 import { getActiveWorkout } from '@/lib/gym/active-workout'
 import { listGyms, listInjuries } from '@/lib/gym/injuries-gyms'
@@ -66,7 +67,7 @@ export async function GET() {
 
     return NextResponse.json({
       product: {
-        name: 'Workout',
+        name: BRAND.name,
         capabilities: CAPABILITIES,
       },
       state: {

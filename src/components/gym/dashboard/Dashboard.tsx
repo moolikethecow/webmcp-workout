@@ -20,6 +20,7 @@ import { HCard, HealthStyles, MonoLabel, PageHead, SecHead } from '@/components/
 import { BRAND } from '@/lib/brand'
 import { INJURY_SITE_LABELS, type InjurySite } from '@/lib/gym/injury-profile'
 import { useGymWebMCP } from '@/lib/webmcp'
+import { useLiveRefresh } from '@/lib/stores/use-live-refresh'
 import AgentActivity from '@/components/gym/shell/AgentActivity'
 
 import ConstraintForm from './ConstraintForm'
@@ -134,6 +135,17 @@ export default function Dashboard() {
   useEffect(() => {
     void load()
   }, [load])
+
+  // Every agent mutation ends in `afterMutation`, which bumps the 'gym'
+  // counter. Without this subscription the dashboard read its data once on
+  // mount and never again: an agent could draft a session, record a constraint
+  // or switch gyms and this page — the one most people open first, and the one
+  // an agent is usually looking at — kept showing "No session yet today" until
+  // a manual reload. The Train tab subscribed; this never did, so the app
+  // narrated agent work on one screen and silently ignored it on the other.
+  useLiveRefresh('gym', () => {
+    void load()
+  })
 
   return (
     <div className="page page-fade" style={{ maxWidth: 1040 }}>

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('next/link', () => ({
@@ -11,6 +11,7 @@ vi.mock('../ReadinessBlock', () => ({
 }))
 
 import Dashboard, { DEMO_PROMPTS } from '../Dashboard'
+import { invalidateResources } from '@/lib/stores/data-sync-store'
 
 const originalFetch = global.fetch
 
@@ -88,5 +89,40 @@ describe('Dashboard', () => {
     expect(screen.getByText('Left shoulder')).toBeInTheDocument()
     expect(screen.getByText('Pull B')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByText('Readiness: 2 regions')).toBeInTheDocument())
+  })
+
+  it('refetches when an agent changes something, instead of waiting for a reload', async () => {
+    // The bug this pins: the dashboard read once on mount and never again, so a
+    // draft an agent had just created sat on the server while the page kept
+    // saying "No session yet today". The Train tab subscribed to the same bus;
+    // this page did not, so agent work was narrated on one screen and silently
+    // dropped on the other.
+    const fetchSpy = jsonRoute({})
+    vi.stubGlobal('fetch', fetchSpy)
+
+    render(<Dashboard />)
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalled())
+    const afterMount = fetchSpy.mock.calls.length
+
+    await act(async () => {
+      invalidateResources(['gym'])
+    })
+
+    await waitFor(() => expect(fetchSpy.mock.calls.length).toBeGreaterThan(afterMount))
+  })
+
+  it('ignores invalidations for other parts of the app', async () => {
+    const fetchSpy = jsonRoute({})
+    vi.stubGlobal('fetch', fetchSpy)
+
+    render(<Dashboard />)
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalled())
+    const afterMount = fetchSpy.mock.calls.length
+
+    await act(async () => {
+      invalidateResources(['finance'])
+    })
+
+    expect(fetchSpy.mock.calls.length).toBe(afterMount)
   })
 })

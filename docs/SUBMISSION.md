@@ -3,7 +3,7 @@
 ## Before you submit — the checklist
 
 1. **Flip the repo public** (`gh repo edit moolikethecow/webmcp-workout --visibility public --accept-visibility-change-consequences`) and confirm the LICENSE (AGPL-3.0) shows on the GitHub landing page.
-2. **Test in ChatGPT the right way:** desktop app, updated; a **Work or Codex** chat on **GPT-5.6 Sol or Terra**; open https://gym.mootoo.co in the built-in browser; the address bar's **Site tools** menu should list the tools. If the agent says it cannot attach to the tab while the page reads *Agent-ready*, the chat is on the wrong model or mode — not the page.
+2. **Test in ChatGPT the right way:** desktop app, updated; a **Work or Codex** chat on **GPT-5.6 Sol or Terra**; open https://spot.mootoo.co in the built-in browser; the address bar's **Site tools** menu should list the tools. If the agent says it cannot attach to the tab while the page reads *Agent-ready*, the chat is on the wrong model or mode — not the page.
 3. **Record the video** (< 3 min) from `docs/DEMO_SCRIPT.md`, upload to YouTube (unlisted is fine), paste the link.
 4. **Paste the four sections below** into the Devpost form (why WebMCP / better UX / together / how implemented), plus the testing instructions.
 5. Deadline: **Thu 2026-09-03 13:00 PT**.
@@ -11,7 +11,7 @@
 
 **Project name:** Spot — a WebMCP-native training partner
 **Tagline:** Your agent spots you. It changes what's next; it can't touch what you've already lifted.
-**Live URL:** https://gym.mootoo.co (no login; every visitor gets a private seeded workspace)
+**Live URL:** https://spot.mootoo.co (no login; every visitor gets a private seeded workspace). gym.mootoo.co still serves the same app as a fallback if anything about spot regresses before you submit.
 **Repo:** https://github.com/moolikethecow/webmcp-workout (AGPL-3.0)
 
 ## Why this use case is a strong fit for WebMCP
@@ -49,7 +49,7 @@ Every visitor gets an isolated Postgres schema seeded with a fictional athlete, 
 
 ## Testing instructions
 
-**ChatGPT:** desktop app (latest), in a **Work or Codex** chat on **GPT-5.6 Sol or Terra** (Luna has site tools switched off; ChatGPT on the web and Enterprise/Edu workspaces cannot see them). Open https://gym.mootoo.co in the built-in browser; the address bar's **Site tools** menu lists the page's tools. **Chrome 149+:** just open the URL — the origin carries a WebMCP origin-trial token, so no flag is required. (`chrome://flags/#enable-webmcp-testing` for a local build; `chrome://flags/#devtools-webmcp-support` adds the DevTools panel.) No login. The panel on **/** says whether this browser can see the tools and, if not, what to open instead. Start the suggested workout on **/gym**, complete a set by hand, then try:
+**ChatGPT:** desktop app (latest), in a **Work or Codex** chat on **GPT-5.6 Sol or Terra** (Luna has site tools switched off; ChatGPT on the web and Enterprise/Edu workspaces cannot see them). Open https://spot.mootoo.co in the built-in browser; the address bar's **Site tools** menu lists the page's tools. **Chrome 149+:** just open the URL — the origin carries a WebMCP origin-trial token, so no flag is required. (`chrome://flags/#enable-webmcp-testing` for a local build; `chrome://flags/#devtools-webmcp-support` adds the DevTools panel.) No login. The panel on **/** says whether this browser can see the tools and, if not, what to open instead. Start the suggested workout on **/gym**, complete a set by hand, then try:
 
 1. "My shoulder's bugging me and I've got 30 minutes. Keep what I've done, work around the shoulder, hit whatever's freshest."
 2. Complete another set yourself, then: "What should I do next?"

@@ -6,7 +6,7 @@
 
 Most AI fitness tools generate text about a workout. Here the workout itself is the shared artifact: the logger you tap through at the gym and the tools an agent calls both read and write one canonical, versioned session. The human logs sets. The agent restructures what's left, within the app's rules.
 
-> Live demo: **https://gym.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's built-in browser or in Chrome 149+ and the page's tools register automatically; the panel on `/` says whether they did, and what to open if they did not.
+> Live demo: **https://spot.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's built-in browser or in Chrome 149+ and the page's tools register automatically; the panel on `/` says whether they did, and what to open if they did not. (The earlier **gym.mootoo.co** points at the same app if you have that link.)
 
 ## Try this
 
@@ -106,7 +106,7 @@ Every browser profile gets its own workspace (a Postgres schema) on first visit.
 | Client | What to do |
 |---|---|
 | **ChatGPT** | Desktop app (latest), a **Work or Codex** chat on **GPT-5.6 Sol or Terra**. Open the URL in the built-in browser and ask in the chat beside it. ChatGPT on the web, the Luna model, and Enterprise/Edu workspaces cannot see site tools. |
-| **Chrome 149+** | Just open **https://gym.mootoo.co** — the origin carries a WebMCP origin-trial token, so `document.modelContext` is there on load. The form tool needs Chrome 152 or newer, where the declarative half of the API landed. For a local build enable `chrome://flags/#enable-webmcp-testing`; `chrome://flags/#devtools-webmcp-support` adds a DevTools panel that lists and invokes tools. |
+| **Chrome 149+** | Just open **https://spot.mootoo.co** — the origin carries a WebMCP origin-trial token, so `document.modelContext` is there on load. The form tool needs Chrome 152 or newer, where the declarative half of the API landed. For a local build enable `chrome://flags/#enable-webmcp-testing`; `chrome://flags/#devtools-webmcp-support` adds a DevTools panel that lists and invokes tools. |
 | **Anything else** | Add `?webmcp=shim` for a console harness: `window.__webmcp.tools()` and `window.__webmcp.call(name, args)`. |
 
 If an agent says it cannot attach to the tab while the page reads *Agent-ready*, the chat is not a Work/Codex session on Sol or Terra. The page is fine; switch the chat.

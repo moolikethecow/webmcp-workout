@@ -28,6 +28,6 @@ Workspaces that have not been visited for a while can be reclaimed with
 `POST /api/workspace/sweep` (see the route for the age threshold); a daily
 cron hitting it is enough.
 
-The public demo at https://gym.mootoo.co runs this same image, built for
+The public demo at https://spot.mootoo.co runs this same image, built for
 `linux/arm64`, behind the author's existing reverse proxy instead of the Caddy
 service above.

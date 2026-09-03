@@ -1,6 +1,6 @@
 # Demo video script (target 2:55, hard cap 3:00)
 
-Record on https://gym.mootoo.co in a fresh browser profile (fresh workspace). Use the ChatGPT desktop app's built-in browser from a **Work or Codex** chat on **GPT-5.6 Sol or Terra** (not Luna, not the web app); keep the app visible on the left and the chat on the right. Before recording: open /gym, start "Repeat last workout" (Full Body), and complete nothing yet.
+Record on https://spot.mootoo.co in a fresh browser profile (fresh workspace). Use the ChatGPT desktop app's built-in browser from a **Work or Codex** chat on **GPT-5.6 Sol or Terra** (not Luna, not the web app); keep the app visible on the left and the chat on the right. Before recording: open /gym, start "Repeat last workout" (Full Body), and complete nothing yet.
 
 | Time | On screen | Say |
 |---|---|---|
@@ -16,4 +16,4 @@ Record on https://gym.mootoo.co in a fresh browser profile (fresh workspace). Us
 
 Cuts if long: shorten 2:30 to the one sentence about the split. **Never cut 0:55 or 2:05** — they are the two beats nothing else in the field will have.
 
-The 2:05 beat works in both clients: Chrome (152 or newer, no flag needed — gym.mootoo.co carries an origin-trial token) publishes the form itself; ChatGPT's browser gets the code-defined stand-in, which fills the same form and waits for your press, returning `awaiting_confirmation` if you take longer than twenty seconds (the values stay on screen — press Add and it records). If the agent says it cannot attach to the tab, the chat is not a Work/Codex session on Sol or Terra.
+The 2:05 beat works in both clients: Chrome (152 or newer, no flag needed — spot.mootoo.co carries an origin-trial token) publishes the form itself; ChatGPT's browser gets the code-defined stand-in, which fills the same form and waits for your press, returning `awaiting_confirmation` if you take longer than twenty seconds (the values stay on screen — press Add and it records). If the agent says it cannot attach to the tab, the chat is not a Work/Codex session on Sol or Terra.

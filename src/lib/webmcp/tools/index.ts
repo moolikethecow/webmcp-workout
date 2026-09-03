@@ -1,5 +1,5 @@
 /**
- * The twelve tools, and which pages offer them.
+ * The fourteen tools, and which pages offer them.
  *
  * Registration is per page on purpose. A tool list is a prompt: offering
  * `edit_active_workout` on the history page would invite an agent to try it
@@ -13,6 +13,7 @@ import { draftWorkout } from './draft-workout'
 import { editActiveWorkout } from './edit-active-workout'
 import { editWorkoutDraft } from './edit-workout-draft'
 import { getActiveWorkout } from './get-active-workout'
+import { listGyms, switchGym } from './gyms'
 import { getExerciseProgress } from './get-exercise-progress'
 import { getMuscleReadiness } from './get-muscle-readiness'
 import { getTrainingContext } from './get-training-context'
@@ -33,6 +34,8 @@ const EVERYWHERE: WebMcpTool[] = [
   setTrainingConstraint,
   getExerciseProgress,
   getWorkoutHistory,
+  listGyms,
+  switchGym,
 ]
 
 /** Planning: build a draft, shape it, commit to it. */
@@ -65,7 +68,9 @@ export {
   getTrainingConstraints,
   getTrainingContext,
   getWorkoutHistory,
+  listGyms,
   searchExercises,
   setTrainingConstraint,
   startWorkout,
+  switchGym,
 }

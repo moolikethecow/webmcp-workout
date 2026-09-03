@@ -64,3 +64,20 @@ export function bool(args: Record<string, unknown>, key: string): boolean | unde
   const value = args[key]
   return typeof value === 'boolean' ? value : undefined
 }
+
+/** Read a string-array arg, trimmed and de-duplicated; undefined when absent or
+ *  not an array. Non-string entries are dropped rather than failing the call —
+ *  a partly-malformed list is still usable, and an empty result reads as absent. */
+export function strArray(args: Record<string, unknown>, key: string): string[] | undefined {
+  const value = args[key]
+  if (!Array.isArray(value)) return undefined
+  const items = [
+    ...new Set(
+      value
+        .filter((entry): entry is string => typeof entry === 'string')
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  ]
+  return items.length > 0 ? items : undefined
+}

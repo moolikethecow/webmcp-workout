@@ -34,7 +34,7 @@ useEffect(() => {
 neither exists — which is most browsers today — it logs one informational line
 and returns `{ supported: false }`. The app is unaffected. Each tool is
 registered inside its own `try`/`catch`, so one malformed schema cannot take the
-other eleven down with it.
+other thirteen down with it.
 
 **Callbacks never close over React state.** A tool registered on first render
 would otherwise hand an agent a snapshot of whatever the UI was showing at mount.
@@ -101,6 +101,8 @@ front of them changed.
 | `get_training_constraints` | ✓ | `GET /api/gym/injuries?active=1` | all |
 | `get_exercise_progress` | ✓ | `GET /api/gym/agent/progress?exercise=` | all |
 | `get_workout_history` | ✓ | `GET /api/gym/history` | all |
+| `list_gyms` | ✓ | `GET /api/gym/gyms` | all |
+| `switch_gym` | | `PATCH /api/gym/gyms/[id]`, `POST /api/gym/gyms` | all |
 | `set_training_constraint` | | `POST /api/gym/injuries`, `PATCH /api/gym/injuries/[id]` | all |
 | `draft_workout` | | `POST /api/gym/plan` | gym, dashboard |
 | `start_workout` | | `POST /api/gym/plan` (from a draft) or `POST /api/gym/workouts` | gym, dashboard |
@@ -110,6 +112,51 @@ front of them changed.
 Page sets are defined in `src/lib/webmcp/tools/index.ts`. A tool list is a
 prompt: offering `edit_active_workout` on the history page would invite an agent
 to try it where it makes no sense, so it is not offered there.
+
+### The form that is a tool
+
+One tool is not in that table and is not registered by any code: the training
+constraint form on the dashboard.
+
+```html
+<form toolname="report_training_constraint" tooldescription="…">
+  <select name="region" required>…</select>
+  <select name="severity" required>…</select>
+  <input name="label"> <input name="note">
+</form>
+```
+
+That markup *is* the tool. Chrome derives the schema from the controls — a
+`required` attribute becomes JSON Schema `required`, a `<select>` becomes an
+enum carrying its option labels as titles, `type="number"` a number, a checkbox
+a boolean — and publishes `report_training_constraint` alongside the fourteen
+registered ones.
+
+The reason to use it here is not that it saves a file. It is **who presses the
+button**. Chrome fills the controls and then stops: the pending call does not
+resolve until the form is actually submitted. An agent that hears "my left
+shoulder is bad today" can put `shoulder_joint · limiting · left shoulder` into
+the fields, but the call completes only when a person presses Add.
+
+So the split across the whole tool surface is:
+
+| | registered how | what it means |
+|---|---|---|
+| read, search, draft, edit a prescription | `registerTool` | the agent may do it alone |
+| assert a limit on your own body | a `<form>` | a person has to press the button |
+
+`SubmitEvent` grows two members in a WebMCP browser: `agentInvoked`, which says
+which of the two callers this submit came from, and `respondWith(string |
+Promise<string>)`, which hands the result back. Calling `preventDefault()` on an
+agent-invoked submit *without* `respondWith` is the one thing Chrome treats as a
+programming error, and it says so in as many words. Both callers run the same
+handler and hit the same route; only one of them has anywhere to send a
+sentence. `lib/webmcp/declarative.ts` is that contract, and it is nine lines.
+
+In a browser with no WebMCP, neither member exists, `agentInvoked` is undefined,
+and it is an ordinary form — which is the whole reason to build the feature this
+way round. It is also, on its own merits, the fix for constraints having been
+buried in the settings sheet.
 
 ### Vocabulary
 
@@ -146,8 +193,19 @@ some other way is still refused.
 Quick console check without DevTools panels:
 
 ```js
-await document.modelContext.getTools()   // names, descriptions, schemas
+const mc = document.modelContext, ts = await mc.getTools()
+const call = async (n, a = {}) =>
+  JSON.parse(JSON.parse(await mc.executeTool(ts.find(t => t.name === n), JSON.stringify(a))).content[0].text)
+await call('get_muscle_readiness')
 ```
+
+Two things about `executeTool` that the shapes do not advertise: it takes the
+**tool object** from `getTools()`, not a name, and its arguments are a **JSON
+string**. It resolves to a string.
+
+`report_training_constraint` behaves differently on purpose — call it and it
+will not resolve. The fields fill, and the call sits there until you press Add
+on the dashboard. That is the feature; see "The form that is a tool".
 
 ### ChatGPT's browser
 
@@ -180,6 +238,12 @@ correct `readOnlyHint`, and the vocabulary rule.
 
 ## Adding a tool
 
+First decide which half it belongs in. If a person should confirm it before it
+happens, it is a `<form>` with `toolname`/`tooldescription` and a submit handler
+routed through `handleAgentSubmit` — give every control a `name` and a `title`,
+and mark the mandatory ones `required`, because that markup is the schema.
+Otherwise:
+
 1. New file in `src/lib/webmcp/tools/`, exporting a `WebMcpTool`.
 2. Hand-written JSON Schema draft-07 for `inputSchema` — no generator. The
    schema is documentation an agent reads, so the descriptions matter as much as
@@ -196,6 +260,7 @@ correct `readOnlyHint`, and the vocabulary rule.
 ```
 src/lib/webmcp/
   types.ts            minimal WebMCP types (see the note in-file on @mcp-b/webmcp-types)
+  declarative.ts      the form half: agentInvoked + respondWith, in nine lines
   register.ts         feature detection + per-tool registration
   fetch.ts            same-origin transport that never throws
   agent-events.ts     20-entry "Updated by agent" feed

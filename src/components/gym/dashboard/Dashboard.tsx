@@ -22,6 +22,7 @@ import { INJURY_SITE_LABELS, type InjurySite } from '@/lib/gym/injury-profile'
 import { useGymWebMCP } from '@/lib/webmcp'
 import AgentActivity from '@/components/gym/shell/AgentActivity'
 
+import ConstraintForm from './ConstraintForm'
 import { ReadinessBlock, type RegionReadinessRow } from './ReadinessBlock'
 
 /** The three prompts the demo is built around. Verbatim — they are the script. */
@@ -255,6 +256,7 @@ export default function Dashboard() {
                 <p style={{ ...note, marginTop: 10 }}>
                   Constraints shape what can be drafted or swapped in. They are training limits, not medical advice.
                 </p>
+                <ConstraintForm onAdded={load} />
               </HCard>
             </section>
 

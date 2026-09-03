@@ -31,6 +31,27 @@ The tools are deliberately page-scoped and narrow. The intelligence stays in the
 | the next progression target, from an explicit policy | when to ask before changing something |
 | revision checks so a stale edit cannot clobber a fresh one | |
 
+### Two kinds of tool, and who presses the button
+
+WebMCP has a second half almost nobody uses: a `<form>` carrying `toolname` and
+`tooldescription` *is* a tool. Chrome derives the schema from the controls
+themselves, and there is no `registerTool` call anywhere.
+
+What makes that worth having is not brevity — it is that Chrome fills the form
+and then **waits for a human to submit it**. The tool call stays pending until
+someone presses the button.
+
+So this app draws a line down its tool surface:
+
+- **Registered in code** — read, search, draft, restructure work not yet done.
+  The agent may do these alone.
+- **A form on the page** — `report_training_constraint`, where you assert a
+  limit on your own body. The agent fills `shoulder_joint · limiting · left
+  shoulder` into the fields; the call completes when *you* press Add.
+
+One form, two callers, one route, no parallel code path to drift. In a browser
+without WebMCP it is an ordinary form. See [docs/WEBMCP.md](docs/WEBMCP.md#the-form-that-is-a-tool).
+
 ## Tools
 
 | Tool | Kind | What it does |
@@ -43,6 +64,8 @@ The tools are deliberately page-scoped and narrow. The intelligence stays in the
 | `get_training_constraints` / `set_training_constraint` | read / write | User-stated limitations that the eligibility engine enforces. Not a diagnosis. |
 | `draft_workout` / `edit_workout_draft` / `start_workout` | write | Deterministic draft → collaborative edit → live session. |
 | `get_exercise_progress` | read | Records, recent sessions, e1RM trend, and the applicable progression rule. |
+| `list_gyms` / `switch_gym` | read / write | Where you are training decides what equipment exists. Switching narrows the catalog; a gym you have never recorded can be created from a description of the room. |
+| `report_training_constraint` | **form** | Declarative: the agent fills the fields, a person presses Add. |
 | `get_workout_history` | read | Completed sessions. |
 
 Tools register per page (`/`, `/gym`, the History tab) and unregister on navigation. Every mutation re-reads canonical state and returns the new revision. Details: [docs/WEBMCP.md](docs/WEBMCP.md). Rules for agents: [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md).
@@ -71,7 +94,10 @@ pnpm dev                        # http://localhost:3000
 
 Every browser profile gets its own workspace (a Postgres schema) on first visit. Reset it from Settings.
 
-Chrome: enable `chrome://flags/#enable-webmcp-testing` and inspect registered tools in DevTools → Application → WebMCP. ChatGPT's in-app browser has WebMCP on by default.
+Chrome: **https://gym.mootoo.co needs no setup** — the origin carries a WebMCP origin-trial token, so
+`document.modelContext` is there on load. For a local build, or any other origin, enable
+`chrome://flags/#enable-webmcp-testing`. Registered tools are inspectable in DevTools → Application →
+WebMCP (`chrome://flags/#devtools-webmcp-support`). ChatGPT's in-app browser has WebMCP on by default.
 
 ## Tests
 

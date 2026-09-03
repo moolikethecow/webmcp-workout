@@ -23,8 +23,8 @@ function nestedObjectSchemas(schema: unknown, out: JsonSchemaObject[] = []): Jso
 }
 
 describe('tool definitions', () => {
-  it('exposes twelve tools with unique snake_case names', () => {
-    expect(ALL_TOOLS).toHaveLength(12)
+  it('exposes fourteen tools with unique snake_case names', () => {
+    expect(ALL_TOOLS).toHaveLength(14)
     const names = ALL_TOOLS.map((tool) => tool.name)
     expect(new Set(names).size).toBe(names.length)
     for (const name of names) expect(name).toMatch(/^[a-z][a-z0-9_]*$/)
@@ -72,6 +72,7 @@ describe('tool definitions', () => {
         'get_training_constraints',
         'get_training_context',
         'get_workout_history',
+        'list_gyms',
         'search_exercises',
       ].sort(),
     )

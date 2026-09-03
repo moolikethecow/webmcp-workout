@@ -8,7 +8,7 @@
  *   outcome, logged once at info level, not an error.
  *
  *   Per-tool isolation. `registerTool` validates the schema. One malformed tool
- *   must not take the other eleven down with it, so each registration is
+ *   must not take the other thirteen down with it, so each registration is
  *   awaited inside its own try/catch and the caller gets back the names that
  *   actually landed.
  *

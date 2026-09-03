@@ -1300,4 +1300,22 @@ describe('capRegionTargets (max_exercises constraint)', () => {
     expect(capped).toHaveLength(1)
     expect(Math.max(1, Math.round(capped[0]!.workingSets / 3))).toBeLessThanOrEqual(2)
   })
+
+  it('a tuned draft keeps the template name, not one derived from its muscles', () => {
+    const slate = dealSlate(POOLS, [{ region: 'chest', workingSets: 6 }], mulberry32(1))
+
+    // An agent that just said "Upper A is next" and then stages a card titled
+    // "Chest / Lats" looks like it staged something else.
+    expect(fallbackPayload(slate, new Map(), 'Upper A').payload.name).toBe('Upper A')
+  })
+
+  it('falls back to the muscle-derived name when there is no anchor', () => {
+    const slate = dealSlate(POOLS, [{ region: 'chest', workingSets: 6 }], mulberry32(1))
+    const derived = fallbackPayload(slate, new Map()).payload.name
+
+    expect(derived).not.toBe('Upper A')
+    // A whitespace-only template name is not a name; the derived one still wins.
+    expect(fallbackPayload(slate, new Map(), '   ').payload.name).toBe(derived)
+    expect(fallbackPayload(slate, new Map(), null).payload.name).toBe(derived)
+  })
 })

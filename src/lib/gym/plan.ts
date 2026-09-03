@@ -577,6 +577,11 @@ function prependSteerNote(rationale: string, note: string | null): string {
 export function fallbackPayload(
   slate: Slate,
   defaults: Map<string, { weight: number | null; reps: number | null }>,
+  /** The anchor template's name, when this draft is a tune of one. A tuned draft
+   *  IS that template, so it keeps its name; naming it from its muscles instead
+   *  ("Chest / Lats" for Upper A) makes an agent that just said "Upper A is
+   *  next" look like it staged something else entirely. */
+  anchorName?: string | null,
 ): { payload: ProposalPayload; rationale: string } {
   const exercises: ProposalExercise[] = slate.exercises.map((d) => {
     const def = defaults.get(d.exerciseId)
@@ -593,7 +598,7 @@ export function fallbackPayload(
     }
   })
   return {
-    payload: { name: slateName(slate), exercises },
+    payload: { name: anchorName?.trim() || slateName(slate), exercises },
     rationale: 'Deterministic fallback — dealt from the staleness-weighted rotation pools with policy-engine targets.',
   }
 }
@@ -805,6 +810,11 @@ async function historyDefaults(
 
 interface TemplateAnchorRead {
   exercises: AnchorExercise[]
+  /** The template's own name. A tuned draft is that template, so it should say
+   *  so: naming it from its muscles instead ("Chest / Lats" for Upper A) makes
+   *  an agent that just said "Upper A is next" look like it staged something
+   *  else. Null when the row is gone; the muscle name is the fallback. */
+  name: string | null
   /** Exact same-exercise warm-up rows, keyed by exercises.id. Working rows remain
    * tunable; only these explicitly authored rows are reattached after validation. */
   warmupsByExercise: Map<string, ProposalSetPrescription[]>
@@ -813,6 +823,10 @@ interface TemplateAnchorRead {
 /** Read a template's anchor slots plus its explicitly-authored warm-up rows.
  * Template weights are normalized to proposal-canonical pounds at this boundary. */
 async function templateAnchor(templateId: string): Promise<TemplateAnchorRead> {
+  const nameRow = (
+    await db.execute(sql`SELECT name FROM workout_templates WHERE id = ${templateId}`)
+  ).rows[0] as { name?: string } | undefined
+
   const rows = (
     await db.execute(sql`
       SELECT te.id AS template_exercise_id, te.exercise_id,
@@ -872,7 +886,7 @@ async function templateAnchor(templateId: string): Promise<TemplateAnchorRead> {
     if (existing) existing.push(warmup)
     else warmupsByExercise.set(row.exercise_id, [warmup])
   }
-  return { exercises, warmupsByExercise }
+  return { exercises, warmupsByExercise, name: nameRow?.name ?? null }
 }
 
 /** Reattach only warm-ups that came from the explicit tune anchor. This runs
@@ -948,6 +962,7 @@ export async function generatePlan(input: GeneratePlanInput): Promise<Proposal> 
   let anchor: AnchorExercise[] | undefined
   let exclude: string[] | undefined
   let anchorRegions: MuscleRegion[] | undefined
+  let anchorName: string | null = null
   let anchoredWarmups = new Map<string, ProposalSetPrescription[]>()
   let persistBinding: ProposalPersistBinding | undefined
 
@@ -968,6 +983,7 @@ export async function generatePlan(input: GeneratePlanInput): Promise<Proposal> 
     anchor = template.exercises
     anchoredWarmups = template.warmupsByExercise
     anchorRegions = anchor.map((a) => a.region)
+    anchorName = template.name
   } else if (input.mode === 'shuffle' && input.proposalId) {
     // This read captures the exact payload the shuffle is derived from. Persistence
     // compares both id and hash under lock; a newer proposal or in-place edit wins.
@@ -1084,7 +1100,7 @@ export async function generatePlan(input: GeneratePlanInput): Promise<Proposal> 
 
   // Guard: too few candidates → deterministic fallback outright (nothing to plan).
   if (candidates.length < Math.min(MIN_CANDIDATES, slate.exercises.length) || slate.exercises.length === 0) {
-    const fb = fallbackPayload(slate, defaults)
+    const fb = fallbackPayload(slate, defaults, anchorName)
     const persisted = await persistProposal(
       ctx,
       payloadForPersist(fb.payload),
@@ -1098,7 +1114,7 @@ export async function generatePlan(input: GeneratePlanInput): Promise<Proposal> 
   // scored against the session's own region targets and filtered by the active
   // constraints. The adaptive planner is not part of this repo.
   const anchorSplit = anchorSplitFor(slate, targets, ctx.recentSplit)
-  const fb = injurySafeFallback(fallbackPayload(slate, defaults), injuries, anchorSplit)
+  const fb = injurySafeFallback(fallbackPayload(slate, defaults, anchorName), injuries, anchorSplit)
   const persisted = await persistProposal(
     ctx,
     payloadForPersist(fb.payload),

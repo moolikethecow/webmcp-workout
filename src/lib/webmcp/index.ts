@@ -3,14 +3,17 @@
  * browser. See docs/WEBMCP.md for how it works and docs/AGENT_GUIDE.md for the
  * rules an agent is expected to follow here.
  */
-export { registerTools, getModelContext, type RegisterResult } from './register'
+export { registerTools, registerDeclarativeFallbacks, getModelContext, type RegisterResult } from './register'
 export { agentFetch, query, type AgentFetchResult } from './fetch'
 export { useGymWebMCP, type GymWebMcpStatus } from './use-gym-webmcp'
 export {
   ALL_TOOLS,
+  DECLARATIVE_FALLBACKS,
+  declarativeFallbacksForPage,
   toolsForPage,
   type GymPage,
 } from './tools'
+export { stageForm, settleStagedForm, clearStagedForm, isStaged, STAGED_EVENT } from './staged-form'
 export {
   useAgentEventStore,
   recordAgentEvent,

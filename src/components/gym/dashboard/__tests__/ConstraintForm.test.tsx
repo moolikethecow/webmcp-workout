@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ConstraintForm from '../ConstraintForm'
+import { agentEvents, useAgentEventStore } from '@/lib/webmcp/agent-events'
 import type { AgentSubmitEvent } from '@/lib/webmcp/declarative'
+import { stageForm } from '@/lib/webmcp/staged-form'
 
 /**
  * The form has two callers and must be indistinguishable to the server. These
@@ -19,6 +21,7 @@ function okFetch() {
 
 beforeEach(() => {
   vi.stubGlobal('fetch', okFetch())
+  useAgentEventStore.getState().clear()
 })
 afterEach(() => {
   global.fetch = originalFetch
@@ -121,5 +124,52 @@ describe('ConstraintForm', () => {
 
     await expect(submitAsAgent(form)).resolves.toBe('Error: region must be a canonical injury site')
     expect(await screen.findByRole('alert')).toHaveTextContent('region must be a canonical injury site')
+  })
+})
+
+describe('ConstraintForm — a fill staged by the code-defined tool', () => {
+  it('shows the banner, keeps the values after the press, and hands the stage the sentence', async () => {
+    const onAdded = vi.fn()
+    const { container } = render(<ConstraintForm onAdded={onAdded} />)
+    const form = container.querySelector('form')!
+    const user = userEvent.setup()
+
+    let outcome!: ReturnType<typeof stageForm>
+    await act(async () => {
+      outcome = stageForm(form, { region: 'shoulder_joint', severity: 'limiting', label: 'left shoulder' })
+    })
+    expect(screen.getByRole('status')).toHaveTextContent(/Filled in by your agent/)
+    expect(screen.getByRole('status')).toHaveTextContent(/Nothing is recorded until you press/)
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('button', { name: /add constraint/i }))
+
+    await expect(outcome).resolves.toEqual({
+      status: 'submitted',
+      result: expect.stringMatching(/Recorded: left shoulder — limiting/),
+    })
+    await waitFor(() => expect(onAdded).toHaveBeenCalled())
+    // The values stay on screen as the record of what was just confirmed…
+    expect((form.querySelector('input[name="label"]') as HTMLInputElement).value).toBe('left shoulder')
+    // …the banner is gone, and the agent feed says who did it.
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(agentEvents()[0]).toMatchObject({ tool: 'report_training_constraint' })
+  })
+
+  it('Discard clears the stage and the form without recording anything', async () => {
+    const { container } = render(<ConstraintForm onAdded={vi.fn()} />)
+    const form = container.querySelector('form')!
+    const user = userEvent.setup()
+
+    let outcome!: ReturnType<typeof stageForm>
+    await act(async () => {
+      outcome = stageForm(form, { region: 'knees', severity: 'out' })
+    })
+    await user.click(screen.getByRole('button', { name: /discard/i }))
+
+    await expect(outcome).resolves.toEqual({ status: 'awaiting_confirmation' })
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect((form.querySelector('select[name="region"]') as HTMLSelectElement).value).toBe('')
+    expect(global.fetch).not.toHaveBeenCalled()
   })
 })

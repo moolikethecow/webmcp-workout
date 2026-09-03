@@ -1,5 +1,6 @@
 /**
- * The fifteen tools, and which pages offer them.
+ * The fifteen registered tools, and which pages offer them — plus the
+ * code-defined stand-in for the dashboard's form tool.
  *
  * Registration is per page on purpose. A tool list is a prompt: offering
  * `edit_active_workout` on the history page would invite an agent to try it
@@ -19,6 +20,7 @@ import { getMuscleReadiness } from './get-muscle-readiness'
 import { getTrainingContext } from './get-training-context'
 import { getTrainingPlan } from './training-plan'
 import { getWorkoutHistory } from './get-workout-history'
+import { reportTrainingConstraint } from './report-training-constraint'
 import { searchExercises } from './search-exercises'
 import { startWorkout } from './start-workout'
 import { getTrainingConstraints, setTrainingConstraint } from './training-constraints'
@@ -44,6 +46,19 @@ const EVERYWHERE: WebMcpTool[] = [
 const PLANNING: WebMcpTool[] = [draftWorkout, startWorkout]
 
 export const ALL_TOOLS: WebMcpTool[] = [...EVERYWHERE, ...PLANNING, editActiveWorkout, editWorkoutDraft]
+
+/**
+ * Tools the dashboard also declares as `<form toolname>` markup. These are not
+ * in any page set: `registerDeclarativeFallbacks` registers them only where
+ * the browser did not publish the form itself (ChatGPT's built-in browser has
+ * no declarative API), so the capability exists everywhere under one name.
+ */
+export const DECLARATIVE_FALLBACKS: WebMcpTool[] = [reportTrainingConstraint]
+
+/** The page each declarative fallback's form lives on. */
+export function declarativeFallbacksForPage(page: GymPage): WebMcpTool[] {
+  return page === 'dashboard' ? DECLARATIVE_FALLBACKS : []
+}
 
 export function toolsForPage(page: GymPage): WebMcpTool[] {
   switch (page) {
@@ -72,6 +87,7 @@ export {
   getTrainingPlan,
   getWorkoutHistory,
   listGyms,
+  reportTrainingConstraint,
   searchExercises,
   setTrainingConstraint,
   startWorkout,

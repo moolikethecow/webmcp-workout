@@ -18,6 +18,12 @@
  * Without WebMCP this is an ordinary form, and a useful one: before it, adding
  * a constraint meant digging into the settings sheet.
  *
+ * ChatGPT's built-in browser has no declarative API, so there the same tool is
+ * registered in code (`lib/webmcp/tools/report-training-constraint.ts`) and
+ * *stages* this form: the controls fill, the form is marked, and the call waits
+ * for the person's press. The submit handler below serves all three callers —
+ * a person, a Chrome-filled agent submit, a staged fill — with one code path.
+ *
  * One wart: Chrome puts every `<option>` in the derived enum, `hidden` and
  * `disabled` included, so the "Choose a region…" placeholder shows up as `""`.
  * Dropping it would mean a real region sitting pre-selected in a form about
@@ -25,10 +31,11 @@
  * to send it, `required` stops a person submitting it, and the route answers an
  * empty region with a 400 the form hands straight back.
  */
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { INJURY_SITES, INJURY_SITE_LABELS } from '@/lib/gym/injury-profile'
 import { handleAgentSubmit, isAgentInvoked } from '@/lib/webmcp/declarative'
+import { STAGED_EVENT, clearStagedForm, isStaged, settleStagedForm } from '@/lib/webmcp/staged-form'
 import { afterMutation } from '@/lib/webmcp/tools/shared'
 
 /** Same three levels the settings editor and the eligibility gate use. */
@@ -52,14 +59,30 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
   const formRef = useRef<HTMLFormElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [staged, setStaged] = useState(false)
+
+  // A staged fill is announced on the form element itself, so the banner
+  // follows the DOM attribute rather than a second copy of the state.
+  useEffect(() => {
+    const form = formRef.current
+    if (!form) return
+    const sync = () => setStaged(isStaged(form))
+    sync()
+    form.addEventListener(STAGED_EVENT, sync)
+    return () => form.removeEventListener(STAGED_EVENT, sync)
+  }, [])
 
   const submit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       const form = event.currentTarget
-      const fromAgent = isAgentInvoked(event.nativeEvent as SubmitEvent)
+      const wasStaged = isStaged(form)
+      // Three callers, one handler: a person, Chrome's own agent submit, or a
+      // person confirming values an agent staged. The last two are "agent"
+      // for everything below except who gets the sentence.
+      const fromAgent = isAgentInvoked(event.nativeEvent as SubmitEvent) || wasStaged
       const values = Object.fromEntries(new FormData(form)) as Record<string, string>
 
-      handleAgentSubmit(event.nativeEvent as SubmitEvent, async () => {
+      const answer = handleAgentSubmit(event.nativeEvent as SubmitEvent, async () => {
         setBusy(true)
         setError(null)
         try {
@@ -105,6 +128,9 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
           setBusy(false)
         }
       })
+      // Hands the same sentence to a staged caller (the code-registered tool)
+      // and clears the marker; a no-op when nothing was staged.
+      settleStagedForm(form, answer)
     },
     [onAdded],
   )
@@ -115,8 +141,40 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
       toolname="report_training_constraint"
       tooldescription={TOOL_DESCRIPTION}
       onSubmit={submit}
-      style={{ display: 'flex', flexDirection: 'column', gap: 7, marginTop: 12 }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 7,
+        marginTop: 12,
+        padding: staged ? 10 : 0,
+        margin: staged ? '12px -10px 0' : '12px 0 0',
+        borderRadius: 10,
+        border: staged ? '1px solid var(--accent)' : '1px solid transparent',
+        boxShadow: staged ? '0 0 0 3px var(--accent-muted)' : 'none',
+        transition: 'box-shadow .2s, border-color .2s',
+      }}
     >
+      {staged ? (
+        <div role="status" style={stagedBanner}>
+          <span style={{ ...stagedDot }} aria-hidden />
+          <span style={{ flex: 1 }}>
+            Filled in by your agent. Nothing is recorded until you press <strong>Add</strong> — edit first if it
+            got something wrong.
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const form = formRef.current
+              if (!form) return
+              clearStagedForm(form)
+              form.reset()
+            }}
+            style={stagedDismiss}
+          >
+            Discard
+          </button>
+        </div>
+      ) : null}
       <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
         <label style={field}>
           <span style={fieldLabel}>Region</span>
@@ -217,6 +275,36 @@ const control: React.CSSProperties = {
   padding: '7px 9px',
   minWidth: 0,
   width: '100%',
+}
+const stagedBanner: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 11.5,
+  lineHeight: 1.45,
+  color: 'var(--fg)',
+  background: 'var(--accent-muted)',
+  borderRadius: 8,
+  padding: '7px 9px',
+  margin: 0,
+}
+const stagedDot: React.CSSProperties = {
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: 'var(--accent)',
+  flexShrink: 0,
+}
+const stagedDismiss: React.CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: 9.5,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: 'var(--fg-muted)',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
 }
 const addButton: React.CSSProperties = {
   padding: '7px 13px',

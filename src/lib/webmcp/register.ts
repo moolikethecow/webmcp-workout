@@ -16,6 +16,10 @@
  * the browser drops every tool registered with it.
  */
 import type { ModelContextLike, WebMcpTool } from './types'
+
+/** How long to give a browser that registers `<form toolname>` tools
+ *  asynchronously before concluding it has not. */
+const DECLARATIVE_SETTLE_MS = 300
 import { devShimRequested, installDevShim } from './dev-shim'
 
 let devShim: ModelContextLike | null = null
@@ -77,4 +81,46 @@ export async function registerTools(
     }
   }
   return { registered, failed, supported: true }
+}
+
+/**
+ * Register a code-defined stand-in for a tool the page also declares as a
+ * `<form toolname="…">`, but only where the browser did not publish the form.
+ *
+ * Chrome does: `getTools()` lists the form-derived tool, and registering a
+ * second tool under the same name would be rejected anyway. ChatGPT's built-in
+ * browser implements neither `getTools` nor the declarative API, so the form
+ * is invisible there and the fallback is the only way the capability exists.
+ *
+ * A host that has `getTools` but has not listed the form after a short settle
+ * is treated the same as one without it — a duplicate-name rejection is caught
+ * per tool, so guessing wrong costs a console line, not the other tools.
+ */
+export async function registerDeclarativeFallbacks(
+  tools: WebMcpTool[],
+  signal: AbortSignal,
+): Promise<RegisterResult> {
+  const modelContext = getModelContext()
+  if (!modelContext) return { registered: [], failed: [], supported: false }
+
+  let published = new Set<string>()
+  if (typeof modelContext.getTools === 'function') {
+    await new Promise((resolve) => setTimeout(resolve, DECLARATIVE_SETTLE_MS))
+    if (signal.aborted) return { registered: [], failed: [], supported: true }
+    try {
+      published = new Set((await modelContext.getTools()).map((tool) => tool.name))
+    } catch (err) {
+      console.warn('[webmcp] getTools() failed; assuming no declarative tools were published:', err)
+    }
+  }
+
+  const missing = tools.filter((tool) => !published.has(tool.name))
+  if (missing.length === 0) return { registered: [], failed: [], supported: true }
+  const result = await registerTools(missing, signal)
+  if (result.registered.length > 0) {
+    console.info(
+      `[webmcp] this browser did not publish the declarative form tool(s) ${result.registered.join(', ')}; registered a code-defined stand-in that still waits for a person to press the button.`,
+    )
+  }
+  return result
 }

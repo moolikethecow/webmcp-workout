@@ -39,7 +39,9 @@ describe('Dashboard', () => {
     for (const prompt of DEMO_PROMPTS) {
       expect(await screen.findByText(`“${prompt}”`)).toBeInTheDocument()
     }
-    expect(screen.getByText(/the tools register\s+automatically/)).toBeInTheDocument()
+    // No WebMCP in jsdom: the panel says so and says where to open it instead.
+    expect(await screen.findByText('No WebMCP in this browser.')).toBeInTheDocument()
+    expect(screen.getAllByText(/Sol or Terra/).length).toBeGreaterThan(0)
   })
 
   it('degrades to empty states when every fetch fails', async () => {

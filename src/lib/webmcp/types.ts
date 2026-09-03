@@ -63,7 +63,16 @@ export interface WebMcpRegisterOptions {
   signal?: AbortSignal
 }
 
-/** The slice of `document.modelContext` this app uses. */
+/** A tool as `getTools()` reports it: only the name is relied on here. */
+export interface RegisteredToolLike {
+  name: string
+  [key: string]: unknown
+}
+
+/** The slice of `document.modelContext` this app uses. `getTools` is optional
+ *  because not every host implements it (ChatGPT's browser omits it along with
+ *  the declarative API); its presence is itself a capability signal. */
 export interface ModelContextLike {
   registerTool(tool: WebMcpTool, options?: WebMcpRegisterOptions): Promise<void> | void
+  getTools?(): Promise<RegisteredToolLike[]>
 }

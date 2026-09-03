@@ -11,38 +11,67 @@
  * tool's `execute` always fetches canonical state from the server, so a
  * registration made on first render cannot go stale, and an agent can never be
  * handed a snapshot of what the UI happened to be showing when the page loaded.
+ *
+ * After the page's own tools, the dashboard asks for its declarative fallback:
+ * `report_training_constraint` is a `<form>` there, and a browser without the
+ * declarative API (ChatGPT's) gets the same tool registered in code instead.
+ * That second step is skipped wherever the form was published natively.
  */
 import { useEffect, useState } from 'react'
 
 import { useAgentEventStore } from './agent-events'
-import { registerTools, type RegisterResult } from './register'
-import { toolsForPage, type GymPage } from './tools'
+import { registerDeclarativeFallbacks, registerTools, type RegisterResult } from './register'
+import { declarativeFallbacksForPage, toolsForPage, type GymPage } from './tools'
 
 export interface GymWebMcpStatus {
+  /** False until the registration attempt has resolved. */
+  checked: boolean
   /** False when the browser has no WebMCP API (the app works either way). */
   supported: boolean
   /** Names successfully registered for this page. */
   registered: string[]
+  /** Names registered as code-defined stand-ins for form tools this browser
+   *  did not publish. A subset of `registered`. */
+  fallbacks: string[]
 }
 
+const INITIAL: GymWebMcpStatus = { checked: false, supported: false, registered: [], fallbacks: [] }
+
 export function useGymWebMCP(page: GymPage): GymWebMcpStatus {
-  const [status, setStatus] = useState<GymWebMcpStatus>({ supported: false, registered: [] })
+  const [status, setStatus] = useState<GymWebMcpStatus>(INITIAL)
 
   useEffect(() => {
     const controller = new AbortController()
     let cancelled = false
 
-    void registerTools(toolsForPage(page), controller.signal).then((result: RegisterResult) => {
+    const publish = (next: GymWebMcpStatus) => {
       if (cancelled) return
-      setStatus({ supported: result.supported, registered: result.registered })
+      setStatus(next)
       // Published so the UI can say, honestly, what this browser can do — a
       // browser without WebMCP is told so rather than shown "0 tools".
       useAgentEventStore.getState().setRegistration({
-        checked: true,
-        supported: result.supported,
-        registered: result.registered,
+        checked: next.checked,
+        supported: next.supported,
+        registered: next.registered,
       })
-    })
+    }
+
+    void (async () => {
+      const own: RegisterResult = await registerTools(toolsForPage(page), controller.signal)
+      publish({ checked: true, supported: own.supported, registered: own.registered, fallbacks: [] })
+      if (!own.supported || cancelled) return
+
+      const fallbacks = declarativeFallbacksForPage(page)
+      if (fallbacks.length === 0) return
+      const extra = await registerDeclarativeFallbacks(fallbacks, controller.signal)
+      if (extra.registered.length === 0) return
+      publish({
+        checked: true,
+        supported: true,
+        registered: [...own.registered, ...extra.registered],
+        fallbacks: extra.registered,
+      })
+    })()
 
     return () => {
       cancelled = true

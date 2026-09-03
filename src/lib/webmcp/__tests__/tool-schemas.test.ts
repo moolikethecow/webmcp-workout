@@ -7,7 +7,10 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { ALL_TOOLS, toolsForPage } from '../tools'
+import { ALL_TOOLS, DECLARATIVE_FALLBACKS, toolsForPage } from '../tools'
+
+/** Everything an agent can ever be handed, form stand-in included. */
+const EVERY_TOOL = [...ALL_TOOLS, ...DECLARATIVE_FALLBACKS]
 import type { JsonSchemaObject } from '../types'
 
 /** Walk every nested schema object so array `items` are checked too. */
@@ -23,14 +26,15 @@ function nestedObjectSchemas(schema: unknown, out: JsonSchemaObject[] = []): Jso
 }
 
 describe('tool definitions', () => {
-  it('exposes fifteen tools with unique snake_case names', () => {
+  it('exposes fifteen tools plus the form stand-in, with unique snake_case names', () => {
     expect(ALL_TOOLS).toHaveLength(15)
-    const names = ALL_TOOLS.map((tool) => tool.name)
+    expect(DECLARATIVE_FALLBACKS).toHaveLength(1)
+    const names = EVERY_TOOL.map((tool) => tool.name)
     expect(new Set(names).size).toBe(names.length)
     for (const name of names) expect(name).toMatch(/^[a-z][a-z0-9_]*$/)
   })
 
-  it.each(ALL_TOOLS.map((tool) => [tool.name, tool] as const))(
+  it.each(EVERY_TOOL.map((tool) => [tool.name, tool] as const))(
     '%s has a valid draft-07 object schema',
     (_name, tool) => {
       expect(tool.inputSchema.type).toBe('object')
@@ -53,7 +57,7 @@ describe('tool definitions', () => {
     },
   )
 
-  it.each(ALL_TOOLS.map((tool) => [tool.name, tool] as const))(
+  it.each(EVERY_TOOL.map((tool) => [tool.name, tool] as const))(
     '%s describes when to use it',
     (_name, tool) => {
       // Descriptions are the only guidance an agent gets. Short ones are a bug.
@@ -63,7 +67,7 @@ describe('tool definitions', () => {
   )
 
   it('marks every read-only tool and no mutating tool as readOnlyHint', () => {
-    const readOnly = ALL_TOOLS.filter((tool) => tool.annotations?.readOnlyHint === true).map((t) => t.name)
+    const readOnly = EVERY_TOOL.filter((tool) => tool.annotations?.readOnlyHint === true).map((t) => t.name)
     expect(readOnly.sort()).toEqual(
       [
         'get_active_workout',
@@ -99,12 +103,18 @@ describe('tool definitions', () => {
     // The one sanctioned exception is the non-medical disclaimer, which has to
     // say the word in order to disclaim it.
     const DISCLAIMER = 'This does not diagnose an injury or prescribe rehabilitation.'
-    for (const tool of ALL_TOOLS) {
+    for (const tool of EVERY_TOOL) {
       expect(tool.name).not.toMatch(/injur/i)
       expect(tool.description.replace(DISCLAIMER, ''), tool.name).not.toMatch(/injur/i)
       expect(JSON.stringify(tool.inputSchema), tool.name).not.toMatch(/injur/i)
     }
     const setter = ALL_TOOLS.find((tool) => tool.name === 'set_training_constraint')!
     expect(setter.description).toContain(DISCLAIMER)
+    const reporter = DECLARATIVE_FALLBACKS.find((tool) => tool.name === 'report_training_constraint')!
+    expect(reporter.description).toContain(DISCLAIMER)
+    // The surprising part has to be in the description: nothing is recorded
+    // by the call itself, and the button is not the agent's.
+    expect(reporter.description).toMatch(/nothing is recorded until the person presses Add/i)
+    expect(reporter.description).toMatch(/do not click it for them/i)
   })
 })

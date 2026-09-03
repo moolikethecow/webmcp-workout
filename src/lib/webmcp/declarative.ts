@@ -68,7 +68,7 @@ export function isAgentInvoked(event: SubmitEvent): boolean {
  * the same reason the imperative tools never throw — an agent can read text
  * and retry, but gets nothing from a rejected promise.
  */
-export function handleAgentSubmit(event: SubmitEvent, run: () => Promise<string>): void {
+export function handleAgentSubmit(event: SubmitEvent, run: () => Promise<string>): Promise<string> {
   event.preventDefault()
 
   let result: Promise<string>
@@ -77,18 +77,17 @@ export function handleAgentSubmit(event: SubmitEvent, run: () => Promise<string>
   } catch (err) {
     result = Promise.reject(err)
   }
+  const asText = result.catch((err) => `Error: ${err instanceof Error ? err.message : String(err)}`)
 
   const agentEvent = event as AgentSubmitEvent
   if (agentEvent.agentInvoked === true && typeof agentEvent.respondWith === 'function') {
-    agentEvent.respondWith(
-      result.catch((err) => `Error: ${err instanceof Error ? err.message : String(err)}`),
-    )
-    return
+    agentEvent.respondWith(asText)
   }
 
   // A human pressed the button: nothing is waiting on the text, and `run` has
-  // already shown them whatever went wrong.
-  void result.catch(() => {})
+  // already shown them whatever went wrong. The sentence is still returned so
+  // a staged fill (lib/webmcp/staged-form.ts) can hand it to its own caller.
+  return asText
 }
 
 /**

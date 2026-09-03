@@ -174,6 +174,11 @@ and it is an ordinary form — which is the whole reason to build the feature th
 way round. It is also, on its own merits, the fix for constraints having been
 buried in the settings sheet.
 
+In a browser with WebMCP but without the declarative half — ChatGPT's — the
+same name is registered in code and points at the same form. See "ChatGPT's
+browser" below; the split survives, because the code-defined tool can fill the
+fields and cannot press the button either.
+
 ### Vocabulary
 
 Publicly these are **training constraints**, never "injuries", and
@@ -225,10 +230,48 @@ on the dashboard. That is the feature; see "The form that is a tool".
 
 ### ChatGPT's browser
 
-WebMCP is on there already. Open the deployed app in it, start a workout, and
-ask for something that requires a tool — "add face pulls after the bench press"
-or "my left shoulder is bad today, swap the overhead press". The tools register
-on page load; there is nothing to install.
+Site tools — ChatGPT's name for WebMCP — exist in exactly one place: the
+**built-in browser of the ChatGPT desktop app**, driven from a **Work or Codex**
+chat on **GPT-5.6 Sol or Terra**. Not ChatGPT on the web. Not Luna, which has
+site tools switched off. Not Enterprise or Edu workspaces. Update the app first.
+(Source: [Site tools](https://learn.chatgpt.com/docs/webmcp).)
+
+Open the deployed app in that browser, then ask in the chat beside it for
+something that needs a tool — "add face pulls after the bench press", or "my
+left shoulder is bad today, swap the overhead press". The tools register on page
+load; there is nothing to install. The **Site tools** menu in the address bar
+lists what the page offers.
+
+**The one error that is not the page's fault.** If the panel on `/` reads
+*Agent-ready* and the agent still answers that it cannot attach to the tab, the
+chat is not a Work or Codex session on Sol or Terra. The page has registered its
+tools — the strip is derived from the registration that actually happened, not
+from optimism — and the client has no bridge to them. Switch the chat, not the
+page.
+
+**What ChatGPT's browser does not implement, and what we do about it.**
+Its WebMCP is a subset: no `getTools`, and **no declarative API** — a `<form
+toolname>` is not a site tool there. Left alone, that would delete the form beat
+of the demo in the one client judges are told to use. So the app treats the
+form as *the definition* and the declarative API as *one way to publish it*:
+
+- In Chrome, the form is published by the browser and nothing else happens.
+- Anywhere the browser has not published it — detected by `getTools()` being
+  absent, or by it not listing the name after a short settle —
+  `registerDeclarativeFallbacks` registers `report_training_constraint` in code
+  (`tools/report-training-constraint.ts`). Its `execute` fills the same form's
+  controls, marks it *Filled in by your agent*, and waits for the person to
+  press Add — the property the form was chosen for, rebuilt on `registerTool`.
+  `staged-form.ts` is that contract in fifty lines: `stageForm` fills and waits,
+  the submit handler calls `settleStagedForm` with its own sentence, and the
+  pending call resolves with it.
+
+A host may time a tool call out, and Chrome's indefinite wait is the one thing
+`registerTool` cannot reproduce. So the fallback waits twenty seconds and then
+resolves with `awaiting_confirmation`: the values stay on screen, the form stays
+marked, and the person's eventual press still records the constraint through
+the ordinary submit. The description says all of this out loud, including that
+the button is not the agent's to press.
 
 Good things to demonstrate, because they show the shared-artifact property
 rather than just a working tool call:
@@ -243,12 +286,16 @@ rather than just a working tool call:
 ### Automated
 
 ```
-pnpm vitest run src/lib/webmcp
+pnpm vitest run src/lib/webmcp src/components/gym/dashboard
 ```
 
-covers registration (present / absent / one bad tool / already aborted) and
-every tool's schema: draft-07 object, `required ⊆ properties`, typed properties,
-correct `readOnlyHint`, and the vocabulary rule.
+covers registration (present / absent / one bad tool / already aborted), the
+declarative fallback (registered without `getTools`, skipped when Chrome
+published the form, duplicate-name rejection contained), the staged form
+(fill → press → sentence; timeout → `awaiting_confirmation` with the values
+still on screen), the constraint form's three callers, the agent panel, and
+every tool's schema: draft-07 object, `required ⊆ properties`, typed
+properties, correct `readOnlyHint`, and the vocabulary rule.
 
 ---
 
@@ -277,9 +324,11 @@ Otherwise:
 src/lib/webmcp/
   types.ts            minimal WebMCP types (see the note in-file on @mcp-b/webmcp-types)
   declarative.ts      the form half: agentInvoked + respondWith, in nine lines
-  register.ts         feature detection + per-tool registration
+  staged-form.ts      the same contract on registerTool, for browsers without the form half
+  register.ts         feature detection, per-tool registration, declarative fallbacks
   fetch.ts            same-origin transport that never throws
   agent-events.ts     20-entry "Updated by agent" feed
+  demo-prompts.ts     the prompts the demo is built around, verbatim
   use-gym-webmcp.ts   the React hook
   tools/              one file per tool + shared result helpers
   index.ts            public surface

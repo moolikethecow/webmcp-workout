@@ -32,18 +32,20 @@ We use both halves of the API, and the split between them is the design.
 
 **One declarative tool, registered by markup.** `report_training_constraint` is a `<form>` on the dashboard carrying `toolname` and `tooldescription`. There is no `registerTool` call: Chrome reads the controls and derives the schema from them — `required` becomes JSON Schema `required`, a `<select>` becomes an enum carrying its option labels, and so on. We chose a form here for what it does to the timing. Chrome fills the fields and then waits: the tool call does not resolve until the form is actually submitted, so an agent can put `shoulder_joint · limiting · left shoulder` on screen but a person commits it. `SubmitEvent` exposes `agentInvoked` and `respondWith()`, so one handler serves both callers and hands the result back to whichever one was an agent.
 
+ChatGPT's built-in browser implements a subset of WebMCP with no declarative API, so the form is not a site tool there. Rather than lose the beat in the client judges use, the page treats the form as the definition and the declarative API as one way to publish it: where the browser has not published the form (no `getTools`, or the name absent from it), the same `report_training_constraint` is registered in code, and its `execute` fills the same form and waits for the person's press. Chrome's indefinite wait is the one thing `registerTool` cannot reproduce, so after twenty seconds the call resolves with `awaiting_confirmation` and the values stay on screen for the press. One name, one form, one submit handler, three callers.
+
 That gives the app an honest line: **what the agent may do alone is registered in code; what needs a hand on the button is a form.** Reading, searching, drafting and re-prescribing work not yet done are the first kind. Asserting a limit on your own body is the second. And because it is a real form, a browser with no WebMCP gets an ordinary constraint editor — the feature degrades into plain HTML.
 
 Every visitor gets an isolated Postgres schema seeded with a fictional athlete, so judges can mutate freely.
 
 ## Testing instructions
 
-Open https://gym.mootoo.co in ChatGPT's in-app browser, or in Chrome 149+. **The origin carries a WebMCP origin-trial token, so no flag is required** — `document.modelContext` is there on load. (`chrome://flags/#enable-webmcp-testing` still works for a local build; `chrome://flags/#devtools-webmcp-support` adds the DevTools panel.) No login. Start the suggested workout on **/gym**, complete a set by hand, then try:
+**ChatGPT:** desktop app (latest), in a **Work or Codex** chat on **GPT-5.6 Sol or Terra** (Luna has site tools switched off; ChatGPT on the web and Enterprise/Edu workspaces cannot see them). Open https://gym.mootoo.co in the built-in browser; the address bar's **Site tools** menu lists the page's tools. **Chrome 149+:** just open the URL — the origin carries a WebMCP origin-trial token, so no flag is required. (`chrome://flags/#enable-webmcp-testing` for a local build; `chrome://flags/#devtools-webmcp-support` adds the DevTools panel.) No login. The panel on **/** says whether this browser can see the tools and, if not, what to open instead. Start the suggested workout on **/gym**, complete a set by hand, then try:
 
 1. "My shoulder's bugging me and I've got 30 minutes. Keep what I've done, work around the shoulder, hit whatever's freshest."
 2. Complete another set yourself, then: "What should I do next?"
 3. "Before I go heavier on incline bench, am I actually progressing?"
-4. On **/** — "my left shoulder is bad today, note it as limiting." Watch the constraint form fill in and stop. Nothing is recorded until you press Add; then search and drafts exclude overhead pressing.
+4. On **/** — "my left shoulder is bad today, note it as limiting." Watch the constraint form fill in and stop (in ChatGPT it is highlighted *Filled in by your agent*). Nothing is recorded until you press Add; then search and drafts exclude overhead pressing.
 5. "I'm in a hotel gym this week — dumbbells and a smith machine, that's it." The catalog narrows to what is in the room, and the reply says by how much.
 
 Reset the workspace from Settings at any time.

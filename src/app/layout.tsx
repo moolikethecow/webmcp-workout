@@ -1,12 +1,25 @@
 import type { Metadata } from 'next'
 
+import TopBar from '@/components/shell/TopBar'
 import { BRAND } from '@/lib/brand'
 
 import './globals.css'
 
+const DESCRIPTION =
+  'A WebMCP-native workout tracker: you log the sets, an agent in the same browser reshapes what is left. ' +
+  'Fifteen page-scoped tools on document.modelContext, one live session, one set of rules.'
+
 export const metadata: Metadata = {
-  title: BRAND.name,
-  description: BRAND.tagline,
+  title: { default: BRAND.name, template: `%s · ${BRAND.name}` },
+  description: DESCRIPTION,
+  applicationName: BRAND.name,
+  openGraph: {
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: DESCRIPTION,
+    type: 'website',
+    siteName: BRAND.name,
+  },
+  twitter: { card: 'summary', title: `${BRAND.name} — ${BRAND.tagline}`, description: DESCRIPTION },
 }
 
 // Read at request time, not build time, so the origin-trial token can be set
@@ -36,7 +49,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <meta key={token.slice(0, 16)} httpEquiv="origin-trial" content={token} />
         ))}
       </head>
-      <body>{children}</body>
+      <body>
+        <TopBar />
+        {children}
+      </body>
     </html>
   )
 }

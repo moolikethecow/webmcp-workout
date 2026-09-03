@@ -4,7 +4,7 @@
 
 Most AI fitness tools generate text about a workout. Here the workout itself is the shared artifact: the logger you tap through at the gym and the tools an agent calls both read and write one canonical, versioned session. The human logs sets. The agent restructures what's left, within the app's rules.
 
-> Live demo: **https://gym.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's in-app browser or in Chrome with WebMCP enabled and the page's tools register automatically.
+> Live demo: **https://gym.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's built-in browser or in Chrome 149+ and the page's tools register automatically; the panel on `/` says whether they did, and what to open if they did not.
 
 ## Try this
 
@@ -50,7 +50,10 @@ So this app draws a line down its tool surface:
   shoulder` into the fields; the call completes when *you* press Add.
 
 One form, two callers, one route, no parallel code path to drift. In a browser
-without WebMCP it is an ordinary form. See [docs/WEBMCP.md](docs/WEBMCP.md#the-form-that-is-a-tool).
+without WebMCP it is an ordinary form. In a browser with WebMCP but no
+declarative half — ChatGPT's — the same name is registered in code, fills the
+same form, and still waits for your press. See
+[docs/WEBMCP.md](docs/WEBMCP.md#the-form-that-is-a-tool).
 
 ## Tools
 
@@ -66,7 +69,7 @@ without WebMCP it is an ordinary form. See [docs/WEBMCP.md](docs/WEBMCP.md#the-f
 | `get_exercise_progress` | read | Records, recent sessions, e1RM trend, and the applicable progression rule. |
 | `get_training_plan` | read | The active plan's ordered days and which one is next. When a plan is running it decides the next session — readiness explains why, it does not choose. |
 | `list_gyms` / `switch_gym` | read / write | Where you are training decides what equipment exists. Switching narrows the catalog; a gym you have never recorded can be created from a description of the room. |
-| `report_training_constraint` | **form** | Declarative: the agent fills the fields, a person presses Add. |
+| `report_training_constraint` | **form** | Declarative: the agent fills the fields, a person presses Add. Registered in code where the browser has no declarative API (ChatGPT), with the same wait. |
 | `get_workout_history` | read | Completed sessions. |
 
 Tools register per page (`/`, `/gym`, the History tab) and unregister on navigation. Every mutation re-reads canonical state and returns the new revision. Details: [docs/WEBMCP.md](docs/WEBMCP.md). Rules for agents: [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md).
@@ -95,10 +98,15 @@ pnpm dev                        # http://localhost:3000
 
 Every browser profile gets its own workspace (a Postgres schema) on first visit. Reset it from Settings.
 
-Chrome: **https://gym.mootoo.co needs no setup** — the origin carries a WebMCP origin-trial token, so
-`document.modelContext` is there on load. For a local build, or any other origin, enable
-`chrome://flags/#enable-webmcp-testing`. Registered tools are inspectable in DevTools → Application →
-WebMCP (`chrome://flags/#devtools-webmcp-support`). ChatGPT's in-app browser has WebMCP on by default.
+## Where the tools are visible
+
+| Client | What to do |
+|---|---|
+| **ChatGPT** | Desktop app (latest), a **Work or Codex** chat on **GPT-5.6 Sol or Terra**. Open the URL in the built-in browser and ask in the chat beside it. ChatGPT on the web, the Luna model, and Enterprise/Edu workspaces cannot see site tools. |
+| **Chrome 149+** | Just open **https://gym.mootoo.co** — the origin carries a WebMCP origin-trial token, so `document.modelContext` is there on load. For a local build enable `chrome://flags/#enable-webmcp-testing`; `chrome://flags/#devtools-webmcp-support` adds a DevTools panel that lists and invokes tools. |
+| **Anything else** | Add `?webmcp=shim` for a console harness: `window.__webmcp.tools()` and `window.__webmcp.call(name, args)`. |
+
+If an agent says it cannot attach to the tab while the page reads *Agent-ready*, the chat is not a Work/Codex session on Sol or Terra. The page is fine; switch the chat.
 
 ## Tests
 

@@ -23,15 +23,11 @@ import { useGymWebMCP } from '@/lib/webmcp'
 import { useLiveRefresh } from '@/lib/stores/use-live-refresh'
 import AgentActivity from '@/components/gym/shell/AgentActivity'
 
+import AgentPanel from './AgentPanel'
 import ConstraintForm from './ConstraintForm'
 import { ReadinessBlock, type RegionReadinessRow } from './ReadinessBlock'
 
-/** The three prompts the demo is built around. Verbatim — they are the script. */
-export const DEMO_PROMPTS = [
-  "My shoulder's bugging me and I've got 30 minutes. Keep what I've done, work around the shoulder, hit whatever's freshest.",
-  'What should I do next?',
-  'Before I go heavier on incline bench, am I actually progressing?',
-] as const
+export { DEMO_PROMPTS } from '@/lib/webmcp/demo-prompts'
 
 interface ActiveSummary {
   id: string
@@ -87,7 +83,7 @@ async function readJson(url: string): Promise<Record<string, unknown> | null> {
 }
 
 export default function Dashboard() {
-  useGymWebMCP('dashboard')
+  const webmcp = useGymWebMCP('dashboard')
 
   const [data, setData] = useState<DashboardData>(EMPTY)
   const [loading, setLoading] = useState(true)
@@ -165,7 +161,9 @@ export default function Dashboard() {
       <div className="hlth-sections">
         <PageHead title={BRAND.name} sub={BRAND.tagline} />
 
-        <AgentActivity showStatus />
+        {/* The top bar's pill and section 05 already say what this browser can do;
+            the strip here is the narration of what an agent did, when it has. */}
+        <AgentActivity />
 
         <div className="gym-dash-grid">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -272,21 +270,9 @@ export default function Dashboard() {
               </HCard>
             </section>
 
-            <section>
+            <section id="agent">
               <SecHead num="05">Work with your agent</SecHead>
-              <HCard pad={16}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {DEMO_PROMPTS.map((prompt, index) => (
-                    <p key={prompt} style={{ ...prompts, borderTop: index === 0 ? 'none' : prompts.borderTop }}>
-                      “{prompt}”
-                    </p>
-                  ))}
-                </div>
-                <p style={{ ...note, marginTop: 10 }}>
-                  Open this page in ChatGPT&rsquo;s browser or Chrome with WebMCP enabled; the tools register
-                  automatically.
-                </p>
-              </HCard>
+              <AgentPanel status={webmcp} page="dashboard" />
             </section>
           </div>
         </div>
@@ -345,14 +331,4 @@ const meta: React.CSSProperties = {
   fontSize: 10.5,
   color: 'var(--fg-subtle)',
   whiteSpace: 'nowrap',
-}
-const prompts: React.CSSProperties = {
-  fontFamily: 'var(--font-serif)',
-  fontStyle: 'italic',
-  fontSize: 13.5,
-  lineHeight: 1.55,
-  color: 'var(--fg-muted)',
-  margin: 0,
-  padding: '9px 0',
-  borderTop: '1px solid var(--border-muted)',
 }

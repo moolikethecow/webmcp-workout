@@ -4,7 +4,7 @@
  * The muscle map for /health — an interactive human figure (front + back) whose
  * regions are colored by deterministic training/recovery state, with a tap panel
  * showing last-worked, weekly volume + trend, and the paired body measurement.
- * Read-only over the imported Strong workouts (via /api/health/muscle-map).
+ * Read-only over this workspace's logged sets (via /api/health/muscle-map).
  * Mobile-first: figures scale, the panel stacks below on narrow screens.
  * Presentation: vendored anatomical artwork + motion in MuscleFigure; the panel
  * slides in per selection and its numbers count up (both reduced-motion aware).
@@ -39,10 +39,6 @@ interface Region {
   volumeTrend: -1 | 0 | 1
   exercises: string[]
   measurement: RegionMeasurement | null
-  /** §10b.5 mobility lens (optional: server may predate this bundle). */
-  mobilityMinutes?: number
-  priorMobilityMinutes?: number
-  daysSinceMobility?: number | null
 }
 
 // Session drill-down (lazy per region) — the recent sets that trained this muscle.
@@ -68,30 +64,7 @@ interface MapData {
   regions: Record<MuscleRegion, Region>
   legend: { state: State; label: string; hint: string }[]
   hasData: boolean
-  mobility?: {
-    weekMinutes: number
-    priorWeekMinutes: number
-    regionsWorked: number
-    targetMinutes: number
-  }
 }
-
-type Lens = 'recovery' | 'mobility'
-
-/** Mobility-lens paint: minutes vs the weekly target, mapped onto existing
- *  figure states so MuscleFigure's duotone/motion treatment carries over.
- *  none → untrained (grey) · below target → ready (amber) · on target → fresh. */
-function mobilityPaintState(minutes: number, target: number): State {
-  if (minutes <= 0) return 'untrained'
-  if (minutes < target) return 'ready'
-  return 'fresh'
-}
-
-const MOBILITY_LEGEND: { state: State; label: string; hint: string }[] = [
-  { state: 'fresh', label: 'On target', hint: '≥ weekly target of hold minutes' },
-  { state: 'ready', label: 'Below target', hint: 'Some hold minutes this week, under target' },
-  { state: 'untrained', label: 'None', hint: 'No mobility work this week' },
-]
 
 // Mirror of lib/fitness/muscle-state STATE_META colors (client keeps a literal
 // copy; the MuscleMap state-color sync test asserts they never drift).
@@ -126,7 +99,6 @@ export function MuscleMap() {
   const [data, setData] = useState<MapData | null>(null)
   const [err, setErr] = useState(false)
   const [view, setView] = useState<'front' | 'back'>('front')
-  const [lens, setLens] = useState<Lens>('recovery')
   // held = the LOCKED region (an explicit tap); it survives mouse-out and drives
   // the panel until you tap it again or hit Back. hoverPreview = the last muscle
   // the cursor/focus is over — only used when nothing is held (#1040).
@@ -137,13 +109,6 @@ export function MuscleMap() {
   // different muscle switches the lock.
   const toggleHold = (region: MuscleRegion) =>
     setHeld((cur) => (cur === region ? null : region))
-
-  // A held joint region is stale once you leave the mobility lens (joints are
-  // only tappable there), so drop the lock on any lens switch. The front/back
-  // flip intentionally keeps the lock — today's cross-view behavior survives.
-  useEffect(() => {
-    setHeld(null)
-  }, [lens])
 
   useEffect(() => {
     const load = () =>
@@ -160,23 +125,18 @@ export function MuscleMap() {
   const paint = useMemo(() => {
     const out: Partial<Record<MuscleRegion, RegionPaint>> = {}
     if (!data) return out
-    const target = data.mobility?.targetMinutes ?? 10
     for (const region of Object.values(data.regions)) {
-      const state =
-        lens === 'mobility'
-          ? mobilityPaintState(region.mobilityMinutes ?? 0, target)
-          : region.state
-      out[region.region] = { color: STATE_COLOR[state], state }
+      out[region.region] = { color: STATE_COLOR[region.state], state: region.state }
     }
     return out
-  }, [data, lens])
+  }, [data])
 
   if (err) return <p style={noteStyle}>Couldn’t load the muscle map.</p>
   if (!data) return <p style={noteStyle}>Loading…</p>
   if (!data.hasData) {
     return (
       <p style={noteStyle}>
-        No workout data yet — import a Strong export to light up the muscle map.
+        No completed sessions yet — log a workout and the map lights up.
       </p>
     )
   }
@@ -193,19 +153,6 @@ export function MuscleMap() {
           Muscle map <span style={subtle}>(last {data.windowDays}d)</span>
         </h3>
         <div style={{ display: 'flex', gap: 6 }}>
-          <div style={toggleWrap} role="tablist" aria-label="Map lens">
-            {(['recovery', 'mobility'] as const).map((l) => (
-              <button
-                key={l}
-                role="tab"
-                aria-selected={lens === l}
-                onClick={() => setLens(l)}
-                style={{ ...toggleBtn, ...(lens === l ? toggleBtnActive : {}) }}
-              >
-                {l === 'recovery' ? 'Recovery' : 'Mobility'}
-              </button>
-            ))}
-          </div>
           <div style={toggleWrap} role="tablist" aria-label="Figure view">
             {(['front', 'back'] as const).map((v) => (
               <button
@@ -222,20 +169,6 @@ export function MuscleMap() {
         </div>
       </div>
 
-      {lens === 'mobility' && data.mobility && (
-        <p style={{ ...noteStyle, padding: '0 0 10px' }}>
-          This week:{' '}
-          <span style={{ fontFamily: 'var(--font-mono)', fontStyle: 'normal', color: 'var(--fg)' }}>
-            {fmt(data.mobility.weekMinutes)} min
-          </span>{' '}
-          across {data.mobility.regionsWorked} region{data.mobility.regionsWorked === 1 ? '' : 's'}
-          {data.mobility.priorWeekMinutes > 0 && ` (prior week ${fmt(data.mobility.priorWeekMinutes)} min)`}
-          {' · '}target {data.mobility.targetMinutes} min/muscle
-        </p>
-      )}
-
-      {lens === 'mobility' && <AssessmentBlock />}
-
       <div style={grid}>
         {/* Figure */}
         <div style={figureCol}>
@@ -246,20 +179,17 @@ export function MuscleMap() {
               selected={held}
               onSelect={toggleHold}
               onHoverRegion={setHoverPreview}
-              mobilityRegions={lens === 'mobility'}
             />
           </div>
-          <Legend legend={lens === 'mobility' ? MOBILITY_LEGEND : data.legend} />
+          <Legend legend={data.legend} />
         </div>
 
         {/* Detail panel */}
         <div style={panelCol}>
           {sel ? (
             <RegionPanel
-              key={`${sel.region}-${lens}`}
+              key={sel.region}
               region={sel}
-              lens={lens}
-              target={data.mobility?.targetMinutes ?? 10}
               // Back only when the panel is LOCKED — touch users can't reliably
               // re-tap a tiny region to untoggle, so give them an explicit release.
               onBack={held ? () => setHeld(null) : undefined}
@@ -267,9 +197,8 @@ export function MuscleMap() {
           ) : (
             <div style={{ ...panelCard, color: 'var(--fg-subtle)' }}>
               <p style={{ margin: 0, fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13 }}>
-                {lens === 'mobility'
-                  ? 'Tap a muscle to see its stretch minutes this week against the weekly target.'
-                  : 'Tap a muscle to see when it was last worked, its weekly volume, your measurements, and the recent sets that trained it.'}
+                Tap a muscle to see when it was last worked, its weekly volume, and the recent sets that
+                trained it.
               </p>
             </div>
           )}
@@ -326,13 +255,9 @@ function BackButton({ onBack }: { onBack: () => void }) {
 
 function RegionPanel({
   region,
-  lens,
-  target,
   onBack,
 }: {
   region: Region
-  lens: Lens
-  target: number
   /** Present only when the panel is held (locked) — renders the ‹ Back release. */
   onBack?: () => void
 }) {
@@ -340,19 +265,11 @@ function RegionPanel({
   const trendArrow = region.volumeTrend > 0 ? '↑' : region.volumeTrend < 0 ? '↓' : '→'
   const trendColor =
     region.volumeTrend > 0 ? 'var(--success)' : region.volumeTrend < 0 ? 'var(--danger)' : 'var(--fg-subtle)'
-  const mobility = lens === 'mobility'
-  const mobMinutes = region.mobilityMinutes ?? 0
-  const mobPrior = region.priorMobilityMinutes ?? 0
-  const mobState = mobilityPaintState(mobMinutes, target)
-
   // Lazily load the recent sets that trained this muscle (grouped by workout).
-  // Recovery lens only — the drill-down is the strength log; mobility shows
-  // minutes, not sets.
   const [sessions, setSessions] = useState<DrillSession[] | null>(null)
   const [loadingSessions, setLoadingSessions] = useState(true)
   const [sessionPage, setSessionPage] = useState(0)
   useEffect(() => {
-    if (mobility) return
     let alive = true
     setSessions(null)
     setLoadingSessions(true)
@@ -371,48 +288,10 @@ function RegionPanel({
     return () => {
       alive = false
     }
-  }, [region.region, mobility])
+  }, [region.region])
   const sessionPageCount = sessions ? Math.max(1, Math.ceil(sessions.length / SESSIONS_PER_PAGE)) : 1
   const pagedSessions = sessions?.slice(sessionPage * SESSIONS_PER_PAGE, sessionPage * SESSIONS_PER_PAGE + SESSIONS_PER_PAGE)
 
-  if (mobility) {
-    return (
-      <motion.div
-        initial={reduced ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-        style={panelCard}
-      >
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
-            {onBack && <BackButton onBack={onBack} />}
-            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 16, color: 'var(--fg)' }}>{region.label}</span>
-          </div>
-          <span style={{ ...pill, background: STATE_COLOR[mobState], color: 'var(--bg)' }}>
-            {MOBILITY_LEGEND.find((l) => l.state === mobState)?.label ?? ''}
-          </span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-          <Row label="Last stretched">
-            {region.daysSinceMobility == null
-              ? 'never'
-              : region.daysSinceMobility === 0
-                ? 'today'
-                : `${region.daysSinceMobility}d ago`}
-          </Row>
-          <Row label="This week">
-            <CountUp value={mobMinutes} unit={`/ ${target} min`} />{' '}
-            {mobPrior > 0 && (
-              <span style={{ color: 'var(--fg-subtle)' }}>(prior {fmt(mobPrior)} min)</span>
-            )}
-          </Row>
-        </div>
-        <p style={{ margin: '14px 0 0', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 12, color: 'var(--fg-subtle)' }}>
-          Counted from logged holds — stretch, mobility drill, and soft-tissue minutes, weighted like strength credit.
-        </p>
-      </motion.div>
-    )
-  }
 
   return (
     <motion.div
@@ -539,148 +418,6 @@ function RegionPanel({
         )}
       </div>
     </motion.div>
-  )
-}
-
-// ── ROM self-test battery (§10b.7 — opt-in, passive stamp, never prompted) ────
-
-interface AssessmentTest {
-  key: string
-  label: string
-  unit: string
-  perSide: boolean
-}
-interface AssessmentData {
-  tests: AssessmentTest[]
-  summary: {
-    lastAssessedAt: string | null
-    tests: Array<{ testKey: string; label: string; unit: string; side: string | null; latest: number; delta: number | null }>
-  }
-}
-
-/** "3d ago" / "5w ago" — coarse, calm. */
-function agoText(iso: string): string {
-  const days = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000))
-  if (days === 0) return 'today'
-  if (days < 14) return `${days}d ago`
-  return `${Math.round(days / 7)}w ago`
-}
-
-function AssessmentBlock() {
-  const [data, setData] = useState<AssessmentData | null>(null)
-  const [open, setOpen] = useState(false)
-  const [values, setValues] = useState<Record<string, string>>({})
-  const [saving, setSaving] = useState(false)
-
-  useEffect(() => {
-    fetch('/api/gym/mobility-assessments')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d: AssessmentData) => setData(d))
-      .catch(() => setData(null))
-  }, [])
-
-  if (!data) return null
-
-  interface AssessField {
-    id: string
-    testKey: string
-    side: 'left' | 'right' | null
-    label: string
-    unit: string
-  }
-  const fields: AssessField[] = data.tests.flatMap((t): AssessField[] =>
-    t.perSide
-      ? [
-          { id: `${t.key}:left`, testKey: t.key, side: 'left', label: `${t.label} — L`, unit: t.unit },
-          { id: `${t.key}:right`, testKey: t.key, side: 'right', label: `${t.label} — R`, unit: t.unit },
-        ]
-      : [{ id: t.key, testKey: t.key, side: null, label: t.label, unit: t.unit }],
-  )
-  const distanceUnit = data.tests.find((t) => t.unit !== 'score')?.unit ?? 'cm'
-  const distanceUnitLabel = distanceUnit === 'in' ? 'inches' : 'centimeters'
-
-  async function save() {
-    const entries = fields
-      .map((f) => ({ f, raw: values[f.id]?.trim() }))
-      .filter((x) => x.raw && Number.isFinite(Number(x.raw)))
-      .map((x) => ({ test_key: x.f.testKey, side: x.f.side, value: Number(x.raw) }))
-    if (entries.length === 0) return
-    setSaving(true)
-    try {
-      const r = await fetch('/api/gym/mobility-assessments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entries }),
-      })
-      if (r.ok) {
-        const d = (await r.json()) as { summary: AssessmentData['summary'] }
-        setData((cur) => (cur ? { ...cur, summary: d.summary } : cur))
-        setValues({})
-        setOpen(false)
-      }
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <span style={subtle}>
-          ROM SELF-TESTS{' '}
-          <span style={{ textTransform: 'none', letterSpacing: 0 }}>
-            · {data.summary.lastAssessedAt ? `last assessed ${agoText(data.summary.lastAssessedAt)}` : 'optional — never required'}
-          </span>
-        </span>
-        <button type="button" onClick={() => setOpen((v) => !v)} style={{ ...toggleBtn, border: '1px solid var(--border-muted)', borderRadius: 6 }}>
-          {open ? 'Close' : 'Check in'}
-        </button>
-      </div>
-
-      {!open && data.summary.tests.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-          {data.summary.tests.map((t) => (
-            <span key={`${t.testKey}:${t.side ?? ''}`} style={chip}>
-              {t.label}
-              {t.side ? ` (${t.side === 'left' ? 'L' : 'R'})` : ''}: {fmt(t.latest)} {t.unit === 'score' ? '' : t.unit}
-              {t.delta != null && t.delta !== 0 && (
-                <span style={{ color: t.delta < 0 && t.unit !== 'score' ? 'var(--success)' : 'var(--fg-subtle)' }}>
-                  {' '}
-                  ({t.delta > 0 ? '+' : ''}
-                  {fmt(t.delta)})
-                </span>
-              )}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {open && (
-        <div style={{ ...panelCard, marginTop: 8 }}>
-          <p style={{ margin: '0 0 10px', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 12, color: 'var(--fg-subtle)' }}>
-            Fill what you measured — any subset is fine. Distances in {distanceUnitLabel} (toe touch: negative = past your toes); overhead reach 0–100 vs the reference pose.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
-            {fields.map((f) => (
-              <label key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--fg-muted)' }}>{f.label}</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={values[f.id] ?? ''}
-                  onChange={(e) => setValues((v) => ({ ...v, [f.id]: e.target.value }))}
-                  aria-label={f.label}
-                  style={assessInput}
-                />
-              </label>
-            ))}
-          </div>
-          <button type="button" onClick={() => void save()} disabled={saving} style={saveBtn}>
-            {saving ? 'Saving…' : 'Save check-in'}
-          </button>
-        </div>
-      )}
-    </div>
   )
 }
 

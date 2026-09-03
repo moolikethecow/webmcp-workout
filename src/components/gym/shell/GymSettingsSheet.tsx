@@ -2,7 +2,7 @@
 
 /**
  * Gym settings sheet (GYM_PLAN §4). Wires the settled prefs to /api/gym/settings —
- * global unit, default rest, and linked habit — plus the P3 My-Gyms
+ * global unit and default rest — plus the P3 My-Gyms
  * editor + injuries list (mounted from ../settings).
  *
  * A slide-in right sheet with a scrim; Escape / scrim-click / the × close it.
@@ -24,11 +24,6 @@ interface GymSettings {
   gym_default_rest_seconds: number | null
   gym_timer_sound: string | null
   gym_linked_habit_id: string | null
-}
-
-interface HabitOption {
-  id: string
-  title: string
 }
 
 const labelStyle: React.CSSProperties = {
@@ -60,19 +55,11 @@ function Row({ children }: { children: React.ReactNode }) {
 
 export default function GymSettingsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [settings, setSettings] = useState<GymSettings | null>(null)
-  const [habits, setHabits] = useState<HabitOption[]>([])
   const [resetting, setResetting] = useState(false)
 
   const load = useCallback(async () => {
-    const [sRes, hRes] = await Promise.all([
-      fetch('/api/gym/settings'),
-      fetch('/api/habits'),
-    ])
-    if (sRes.ok) setSettings((await sRes.json()) as GymSettings)
-    if (hRes.ok) {
-      const rows = (await hRes.json()) as Array<{ id: string; title: string }>
-      if (Array.isArray(rows)) setHabits(rows.map((r) => ({ id: r.id, title: r.title })))
-    }
+    const res = await fetch('/api/gym/settings')
+    if (res.ok) setSettings((await res.json()) as GymSettings)
   }, [])
 
   useEffect(() => {
@@ -128,7 +115,6 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
   const unit = settings?.gym_default_unit ?? 'lb'
   const distanceUnit = settings?.gym_distance_unit ?? 'mi'
   const rest = settings?.gym_default_rest_seconds ?? 120
-  const linkedHabit = settings?.gym_linked_habit_id ?? ''
 
   return (
     <div
@@ -261,24 +247,6 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
           </div>
           <p style={helpStyle}>Fallback rest between sets when a template or exercise doesn’t set its own.</p>
           <p style={helpStyle}>Keep your screen on during workouts for rest alerts.</p>
-        </Row>
-
-        {/* Linked habit */}
-        <Row>
-          <span style={labelStyle}>Linked habit</span>
-          <select
-            value={linkedHabit}
-            onChange={(e) => void patch({ gym_linked_habit_id: e.target.value || null })}
-            style={{ ...controlStyle, width: '100%' }}
-          >
-            <option value="">None</option>
-            {habits.map((h) => (
-              <option key={h.id} value={h.id}>
-                {h.title}
-              </option>
-            ))}
-          </select>
-          <p style={helpStyle}>Auto-ticked when you finish a session with at least one working set.</p>
         </Row>
 
         {/* My Gyms editor (P3) */}

@@ -28,7 +28,8 @@ export interface GymWebMcpStatus {
   checked: boolean
   /** False when the browser has no WebMCP API (the app works either way). */
   supported: boolean
-  /** Names successfully registered for this page. */
+  /** Names live for this page: the tools this code registered, plus any
+   *  form tool the browser published itself. */
   registered: string[]
   /** Names registered as code-defined stand-ins for form tools this browser
    *  did not publish. A subset of `registered`. */
@@ -64,11 +65,17 @@ export function useGymWebMCP(page: GymPage): GymWebMcpStatus {
       const fallbacks = declarativeFallbacksForPage(page)
       if (fallbacks.length === 0) return
       const extra = await registerDeclarativeFallbacks(fallbacks, controller.signal)
-      if (extra.registered.length === 0) return
+      if (cancelled) return
+      // Three outcomes, one truth: the name is live on this page when the
+      // browser published the form itself (nothing to register, nothing
+      // failed) or when the stand-in registered. A failed stand-in on a browser
+      // that also did not publish the form is the only way it is absent.
+      const native = extra.registered.length === 0 && extra.failed.length === 0
+      const live = native ? fallbacks.map((tool) => tool.name) : extra.registered
       publish({
         checked: true,
         supported: true,
-        registered: [...own.registered, ...extra.registered],
+        registered: [...own.registered, ...live],
         fallbacks: extra.registered,
       })
     })()

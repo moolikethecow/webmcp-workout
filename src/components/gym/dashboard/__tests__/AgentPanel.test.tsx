@@ -7,10 +7,11 @@ import { DEMO_PROMPTS, MORE_PROMPTS } from '@/lib/webmcp/demo-prompts'
 import type { GymWebMcpStatus } from '@/lib/webmcp'
 
 const none: GymWebMcpStatus = { checked: true, supported: false, registered: [], fallbacks: [] }
+// Chrome published the form itself: it is live, and nothing was a fallback.
 const chrome: GymWebMcpStatus = {
   checked: true,
   supported: true,
-  registered: ['get_training_context', 'draft_workout'],
+  registered: ['get_training_context', 'draft_workout', 'report_training_constraint'],
   fallbacks: [],
 }
 const chatgpt: GymWebMcpStatus = {

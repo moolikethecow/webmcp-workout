@@ -64,7 +64,8 @@ export default function AgentPanel({ status, page = 'dashboard' }: { status: Gym
 
   const roster = buildRoster(page, status)
   const live = status.checked && status.supported
-  const count = live ? status.registered.length + (status.fallbacks.includes(FORM_TOOL) ? 0 : 1) : roster.length
+  // The same number the top bar shows: what is actually live, form included.
+  const count = live ? status.registered.length : roster.length
 
   return (
     <HCard pad={16}>

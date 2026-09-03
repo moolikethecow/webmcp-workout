@@ -101,17 +101,33 @@ front of them changed.
 | `get_training_constraints` | ✓ | `GET /api/gym/injuries?active=1` | all |
 | `get_exercise_progress` | ✓ | `GET /api/gym/agent/progress?exercise=` | all |
 | `get_workout_history` | ✓ | `GET /api/gym/history` | all |
+| `get_training_plan` | ✓ | `GET /api/gym/plans` | all |
 | `list_gyms` | ✓ | `GET /api/gym/gyms` | all |
 | `switch_gym` | | `PATCH /api/gym/gyms/[id]`, `POST /api/gym/gyms` | all |
 | `set_training_constraint` | | `POST /api/gym/injuries`, `PATCH /api/gym/injuries/[id]` | all |
 | `draft_workout` | | `POST /api/gym/plan` | gym, dashboard |
-| `start_workout` | | `POST /api/gym/plan` (from a draft) or `POST /api/gym/workouts` | gym, dashboard |
+| `start_workout` | | `POST /api/gym/plans/[id]/start` (from the plan), `POST /api/gym/plan` (from a draft) or `POST /api/gym/workouts` | gym, dashboard |
 | `edit_workout_draft` | | `POST /api/gym/agent/draft/edit` | gym |
 | `edit_active_workout` | | `POST /api/gym/workouts/active/edit` | gym |
 
 Page sets are defined in `src/lib/webmcp/tools/index.ts`. A tool list is a
 prompt: offering `edit_active_workout` on the history page would invite an agent
 to try it where it makes no sense, so it is not offered there.
+
+### The sequencer has to be readable
+
+A plan is an ordered cycle of days and it is what answers "what's next". The app
+could run one while no agent could see it: `get_training_context` reported the
+active workout, the draft, the constraints and the equipment, and said nothing
+about the programme. An agent asked what to train had only readiness and history
+to reason from, so it improvised — naming whichever day looked least recently
+trained, or had never been done — while the plan sat there holding the answer.
+
+The improvised answer is the dangerous kind: fluent, specific, and wrong, with
+nothing in it that says "I guessed". So `state.activePlan` now carries the plan
+and its next day, `get_training_plan` reads the ordered days, `start_workout`
+gained `from: "plan"`, and one of the rules in the orientation payload says
+plainly that readiness explains *why* a day suits and does not choose it.
 
 ### The form that is a tool
 

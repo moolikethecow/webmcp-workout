@@ -64,6 +64,7 @@ without WebMCP it is an ordinary form. See [docs/WEBMCP.md](docs/WEBMCP.md#the-f
 | `get_training_constraints` / `set_training_constraint` | read / write | User-stated limitations that the eligibility engine enforces. Not a diagnosis. |
 | `draft_workout` / `edit_workout_draft` / `start_workout` | write | Deterministic draft → collaborative edit → live session. |
 | `get_exercise_progress` | read | Records, recent sessions, e1RM trend, and the applicable progression rule. |
+| `get_training_plan` | read | The active plan's ordered days and which one is next. When a plan is running it decides the next session — readiness explains why, it does not choose. |
 | `list_gyms` / `switch_gym` | read / write | Where you are training decides what equipment exists. Switching narrows the catalog; a gym you have never recorded can be created from a description of the room. |
 | `report_training_constraint` | **form** | Declarative: the agent fills the fields, a person presses Add. |
 | `get_workout_history` | read | Completed sessions. |

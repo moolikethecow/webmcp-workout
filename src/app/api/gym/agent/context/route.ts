@@ -4,6 +4,7 @@ import { ensureGymSchema } from '@/lib/db/ensure-fitness'
 import { getActiveWorkout } from '@/lib/gym/active-workout'
 import { listGyms, listInjuries } from '@/lib/gym/injuries-gyms'
 import { getTodayProposal } from '@/lib/gym/plan'
+import { listTrainingPlans } from '@/lib/gym/training-plans'
 import { getGymUnitPreferences } from '@/lib/gym/unit-preferences'
 
 /**
@@ -27,6 +28,7 @@ const CAPABILITIES = [
   'Report per-exercise records, recent sessions, trend and the next prescribed target',
   'Record and resolve training constraints',
   'Build a deterministic workout draft, edit it, and start it',
+  'Run a training plan: an ordered cycle of days that decides which session comes next',
   'Read workout history',
 ] as const
 
@@ -37,6 +39,7 @@ const RULES = [
   'Completed performance is preserved by default. Change a logged set only as an explicit correction the person asked for.',
   'Warm-up sets are not working volume. A change to "sets" means working sets; warm-up ramps are edited separately.',
   'Training constraints and available equipment are hard limits, not preferences. Use search_exercises before proposing a substitution and pick from what it returns.',
+  'When a training plan is active it decides which session is next — read activePlan.nextDay, or get_training_plan for the ordered days. Do not pick the next session from muscle readiness, from whichever template was performed least recently, or from what has never been done; readiness explains why a day suits, it does not choose it.',
   'Muscle readiness is derived from training history only — days since a region was worked and its recent working volume. It is not a recovery score and no wearable data enters it.',
   'Do not diagnose or prescribe treatment. A training constraint records what a person says they cannot do; it is not a medical finding.',
 ] as const
@@ -47,13 +50,19 @@ export async function GET() {
   try {
     await ensureGymSchema()
 
-    const [active, injuries, gyms, units, proposal] = await Promise.all([
+    const [active, injuries, gyms, units, proposal, plans] = await Promise.all([
       getActiveWorkout(),
       listInjuries(true),
       listGyms(),
       getGymUnitPreferences(),
       getTodayProposal().catch(() => null),
+      listTrainingPlans(false).catch(() => []),
     ])
+
+    // The sequencer belongs in orientation. Without it an agent asked "what's
+    // next" has only readiness and history to reason from, and will improvise a
+    // confident wrong answer while a plan sits active deciding the real one.
+    const activePlan = plans.find((plan) => plan.status === 'active') ?? null
 
     const gym = gyms.find((candidate) => candidate.isDefault) ?? gyms[0] ?? null
 
@@ -68,6 +77,22 @@ export async function GET() {
         hasDraft: proposal != null && proposal.status === 'proposed',
         units: { weight: units.weightUnit, distance: units.distanceUnit },
         activeConstraints: injuries.length,
+        activePlan: activePlan
+          ? {
+              id: activePlan.id,
+              name: activePlan.name,
+              scheduleMode: activePlan.scheduleMode,
+              completedSessions: activePlan.completedSessions,
+              nextDay: activePlan.nextDay
+                ? {
+                    dayId: activePlan.nextDay.id,
+                    name: activePlan.nextDay.name,
+                    templateName: activePlan.nextDay.templateName,
+                    available: activePlan.nextDay.available,
+                  }
+                : null,
+            }
+          : null,
         gymEquipment: gym
           ? {
               gym: gym.name,

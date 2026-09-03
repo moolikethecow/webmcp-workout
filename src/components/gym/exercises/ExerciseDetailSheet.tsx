@@ -194,33 +194,11 @@ export function ExerciseDetailSheet({
   )
 }
 
-// ── hero: two-frame crossfade or muscle-SVG ─────────────────────────────────
+// ── hero: the muscle figure ────────────────────────────────────────────────
 function Hero({ exercise }: { exercise: ExerciseDetail }) {
-  const frames = exercise.images ?? []
-  if (frames.length === 0) return null
-  // Dataset entries carry one looping GIF. Render it once rather than placing
-  // two copies into the old JPG crossfade (which would double-decode the GIF).
-  if (frames[0]?.endsWith('.gif')) {
-    return (
-      <div style={heroWrap}>
-        <ExerciseImage imagePath={frames[0]} regions={exercise.regions} alt={`${displayExerciseName(exercise.name)} demo`} size={200} radius={14} eager />
-      </div>
-    )
-  }
-  // Two-frame crossfade (1.2s CSS alternate). If only one frame exists, it just
-  // shows statically.
-  const frameA = frames[0]!
-  const frameB = frames[1] ?? frames[0]!
   return (
     <div style={heroWrap}>
-      <div style={{ position: 'relative', width: 200, height: 200 }} className="gym-hero-frames">
-        <div className="gym-frame gym-frame-a" style={heroFrame}>
-          <ExerciseImage imagePath={frameA} regions={exercise.regions} alt={`${displayExerciseName(exercise.name)} start`} size={200} radius={14} eager />
-        </div>
-        <div className="gym-frame gym-frame-b" style={heroFrame}>
-          <ExerciseImage imagePath={frameB} regions={exercise.regions} alt={`${displayExerciseName(exercise.name)} end`} size={200} radius={14} eager />
-        </div>
-      </div>
+      <ExerciseImage regions={exercise.regions} alt={`${displayExerciseName(exercise.name)} muscles`} size={200} radius={14} />
     </div>
   )
 }
@@ -846,7 +824,6 @@ const closeBtn: React.CSSProperties = {
   zIndex: 2,
 }
 const heroWrap: React.CSSProperties = { display: 'flex', justifyContent: 'center', paddingTop: 8 }
-const heroFrame: React.CSSProperties = { position: 'absolute', inset: 0 }
 const title: React.CSSProperties = {
   fontFamily: 'var(--font-serif)',
   fontStyle: 'italic',

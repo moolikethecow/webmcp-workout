@@ -62,10 +62,8 @@ describe('ExercisesTab', () => {
   it('renders exercise rows from the fetched list', async () => {
     render(<ExercisesTab />)
     expect(await screen.findByText('Incline Bench Press')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Incline Bench Press' })).toHaveAttribute(
-      'src',
-      '/api/gym/exercise-image/videos/0294-NbVPDMW.gif',
-    )
+    // The thumbnail is the muscle figure; no media is fetched for it.
+    expect(screen.getByRole('img', { name: 'Incline Bench Press' })).not.toHaveAttribute('src')
     // all-time sets + last-performed line
     expect(screen.getByText(/430 sets/)).toBeInTheDocument()
   })

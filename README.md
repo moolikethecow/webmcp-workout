@@ -124,5 +124,4 @@ AGPL-3.0. See [LICENSE](LICENSE). Copyright © 2026 Moo Olaniyan.
 ### Data and media
 
 - **Exercise catalog** — names, muscle metadata and instructions come from [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset) (MIT), vendored at a pinned commit as `seed/catalog.json`. The `injury_profile` on every row (the biomechanical demand profile the eligibility gate reads) was precomputed for this catalog and is licensed with the rest of the repository.
-- **Exercise GIFs** are **© Gym visual** ([gymvisual.com](https://gymvisual.com/)), redistributed by that dataset with permission at 180×180. This repository does not contain them: the app proxies each one from the pinned upstream commit on first view (`src/app/api/gym/exercise-image`). They are not covered by the AGPL, and reuse is governed by Gym visual's terms. Without them the app renders a muscle-map thumbnail instead.
-- The legacy JPEG frame path supports [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense).
+- **No third-party media.** That dataset's exercise GIFs are © Gym visual and are not redistributable without their own licence, so this app does not fetch or serve them. The rows still carry the file names; every exercise is drawn as a muscle-map figure instead.

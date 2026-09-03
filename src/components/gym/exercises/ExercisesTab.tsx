@@ -246,7 +246,6 @@ function ExerciseRow({ ex, onOpen }: { ex: ExerciseListItem; onOpen: () => void 
     <HCard pad={10} onClick={onOpen} hover ariaLabel={`Open ${displayExerciseName(ex.name)}`}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <ExerciseImage
-          imagePath={ex.imagePath}
           regions={ex.regions}
           alt={displayExerciseName(ex.name)}
           size={44}

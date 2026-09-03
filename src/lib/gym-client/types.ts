@@ -8,7 +8,6 @@
  *   GET  /api/gym/exercises/[id]                                         → ExerciseDetailResponse
  *   POST /api/gym/exercises {name}                                       → ExerciseCreateResponse
  *   PATCH /api/gym/exercises/[id] {…prefs}                              → { exercise: ExerciseDetail }
- *   image URLs: /api/gym/exercise-image/<images[i]>
  */
 
 import type { MuscleRegion } from '@/lib/fitness/muscles'
@@ -74,7 +73,8 @@ export interface ExerciseListResponse {
 /** The full detail object (extends the list item with the heavy fields). */
 export interface ExerciseDetail extends ExerciseListItem {
   instructions: string[]
-  /** Image paths (relative to /api/gym/exercise-image/), e.g. "Incline_Dumbbell_Press/0.jpg". */
+  /** Media file names carried over from the source dataset. Not rendered:
+   *  the media is third-party and the app serves none of it. */
   images: string[]
   defaultRestSeconds: number | null
   restSecondsWarmup: number | null

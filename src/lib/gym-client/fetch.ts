@@ -216,17 +216,6 @@ export async function revertLoadCorrection(id: string, correctionId: string): Pr
   bumpGeneration()
 }
 
-/** Build the proxy-image URL for a stored image path. */
-export function exerciseImageUrl(imagePath: string): string {
-  // Path segments may contain spaces/parens (custom slugs) — encode each.
-  const clean = imagePath.replace(/^\/+/, '')
-  const encoded = clean
-    .split('/')
-    .map((seg) => encodeURIComponent(seg))
-    .join('/')
-  return `/api/gym/exercise-image/${encoded}`
-}
-
 /** Reusable debounce hook (250ms search box). */
 export function useDebounced<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value)

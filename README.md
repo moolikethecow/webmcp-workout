@@ -1,23 +1,23 @@
 # Spot
 
-*Your agent spots you — it can change what's next, but it can't touch what you've already lifted.*
+*Your workout, spotted by an agent that can't drop the bar.*
 
-**A WebMCP-native workout tracker where a person and an AI agent manage the same live training session.**
+**A workout tracker with the agent inside the page, working on the same session you are.**
 
-Most AI fitness tools generate text about a workout. Here the workout itself is the shared artifact: the logger you tap through at the gym and the tools an agent calls both read and write one canonical, versioned session. The human logs sets. The agent restructures what's left, within the app's rules.
+Most AI fitness apps just talk at you — they write you a plan and leave. Spot lets an agent actually work on the session with you. The app you're using at the gym and the tools the agent calls hit the same data, in the same tab. You log the sets. It reshapes what's left. It can't touch what you've already done.
 
-> Live demo: **https://spot.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's built-in browser or in Chrome 149+ and the page's tools register automatically; the panel on `/` says whether they did, and what to open if they did not. (The earlier **gym.mootoo.co** redirects here — it was the host while this was being built.)
+> Live at **https://spot.mootoo.co**, no login. Everyone who opens it gets their own workspace, seeded with six weeks of a fictional athlete's training, so you can break things freely. Open it in ChatGPT's built-in browser or Chrome 149+ and the tools register on their own — the panel on `/` tells you whether they did, and what to open if they didn't. (**gym.mootoo.co** redirects here; it was the host while this was being built.)
 
 ## Try this
 
 With the app open in an agent-capable browser:
 
-1. Start the suggested workout on **/gym** and complete a set by hand.
-2. Tell the agent: *"My shoulder's bugging me and I've got 30 minutes. Keep what I've done, work around the shoulder, hit whatever's freshest."*
-3. Complete another set yourself, then ask: *"What should I do next?"*
-4. Ask: *"Before I go heavier on incline bench, am I actually progressing?"*
+1. Start the plan's next day on **/gym** and log a set by hand.
+2. Ask: *"Before I go heavier on incline bench, am I actually progressing?"*
+3. Then: *"My shoulder's bugging me and I shouldn't be loading it today. I've got 30 minutes. Keep what I've done, work around the shoulder, hit whatever's freshest."*
+4. Ask it to log your next set. It won't guess the numbers — it asks what you lifted.
 
-The completed sets never change. Replacement exercises come from the eligible pool only. The answer about progress cites the athlete's own history and the explicit progression rule.
+The progression answer comes from six sessions of history and a stated rule, not the model's opinion. The sets you finished stay exactly as you logged them. Everything it swaps in comes from the pool the constraint allows.
 
 ## Why WebMCP
 

@@ -80,8 +80,8 @@ Tools register per page (`/`, `/gym`, the History tab) and unregister on navigat
 ## Training intelligence
 
 - **Training constraints.** A constraint names a site and a severity. Every exercise in the catalog carries a precomputed biomechanical demand profile; one eligibility function decides, and search, drafts and live edits all go through it.
-- **Muscle readiness.** Time since a region was trained, recent working-set volume and frequency, classified conservatively (fresh, ready, recovering, undertrained). No wearable data.
-- **Progression.** Explicit, auditable policies (double progression, linear, RPE) produce the next target; the agent can explain a number instead of inventing one.
+- **Muscle readiness.** Time since a region was trained, plus recent working-set volume, classified conservatively (recovering, ready, fresh, undertrained, or untrained when there is no history at all). Training history only — nothing from a wearable.
+- **Progression.** Explicit, auditable policies — double progression and linear — produce the next target, so the agent can quote the rule and the number it produced instead of inventing one.
 - **Live session invariants.** Completed sets are preserved unless explicitly correcting logged data; warm-ups are not working volume; only one active workout; every write carries a revision.
 
 ## Where this comes from

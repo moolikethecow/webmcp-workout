@@ -88,7 +88,7 @@ Tools register per page (`/`, `/gym`, the History tab) and unregister on navigat
 
 This is the open agent surface of **Stark**, a private personal AI system. The logger, the deterministic engine and their tests were extracted from it; the WebMCP layer, per-visitor workspaces and the demo athlete were built for the challenge. See [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md) for the exact line.
 
-The full system adds what this repo does not ship: wearable-fused readiness (sleep, HRV, recovery), memory across sessions, an adaptive planner, and coupling to nutrition, habits and the rest of a day. If you want that, [join the waitlist](mailto:moo@mootoo.co?subject=Stark%20waitlist).
+The full system adds what this repo does not ship: wearable-fused readiness (sleep, HRV, recovery), memory across sessions, an adaptive planner, and coupling to nutrition, habits and the rest of a day. If you want that, [join the waitlist](https://waitlist.mootoo.co).
 
 ## Run it locally
 

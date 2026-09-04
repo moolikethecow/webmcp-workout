@@ -34,19 +34,7 @@ was built from (`ARG APP_BUILD`). That is how a deploy is verified from outside
 
 ## How the public demo ships
 
-The demo at https://spot.mootoo.co runs this same image, built for `linux/arm64`,
-behind the author's existing reverse proxy instead of the Caddy service above.
-Merging to `main` deploys it; nothing is built by hand:
-
-1. `.circleci/config.yml` → `test` — typecheck, lint, and the full vitest suite
-   against a real Postgres, so the workspace-isolation tests actually run.
-2. `build-and-push` — a NATIVE `linux/arm64` build on an Ampere machine
-   executor, pushed to `ghcr.io/moolikethecow/webmcp-workout:<full-sha>`.
-   SHA tags only, never `latest`.
-3. `request-deploy` → [`scripts/cross-repo-deploy.sh`](../scripts/cross-repo-deploy.sh)
-   rewrites that pin in the infrastructure repo, waits for its CI, merges, and
-   then polls `/api/health` until it reports this build. Ansible on the host
-   side recreates only the app service, so the Postgres holding every visitor's
-   workspace is left running.
-
-A red suite stops at step 1, so an untested commit never reaches GHCR.
+The demo at https://spot.mootoo.co runs this same image, built for
+`linux/arm64` and served behind the author's own reverse proxy rather than the
+Caddy service above. Images are tagged with the full commit SHA, never
+`latest`, so what is running is always identifiable from `/api/health`.

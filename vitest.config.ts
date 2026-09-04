@@ -4,14 +4,13 @@ import path from 'path'
 
 // Cap Vitest pool concurrency in CI: docker executors report the HOST's
 // core count via os.cpus(), so uncapped vitest over-forks and worker IPC
-// (onTaskUpdate) times out. Keep this cap == the vCPU count of the
-// executor running this suite (node-20-xl / xlarge.gen2, 8 vCPU — see
-// .circleci/config.yml); bump both together. 16 forks on 16 vCPUs tripped
-// a 5s test timeout under collect-phase load, so 8 is also the measured
-// flake-free ceiling. Tests run fine at full parallelism locally.
+// (onTaskUpdate) times out. Keep this cap == the vCPU count of the executor
+// running this suite — the `test` job's resource_class in .circleci/config.yml,
+// currently `large` (4 vCPU). Change one, change the other. Tests run fine at
+// full parallelism locally.
 const isCI = !!process.env.CI
 const poolOptions = isCI
-  ? { forks: { minForks: 1, maxForks: 8 } }
+  ? { forks: { minForks: 1, maxForks: 4 } }
   : undefined
 
 export default defineConfig({
@@ -36,15 +35,10 @@ export default defineConfig({
     // failure the 16-fork probe hit on 2026-07-22). Locally keep 5s so real
     // hangs surface fast.
     testTimeout: isCI ? 15_000 : 5_000,
-    // Hooks need the same CI headroom for the same reason, and were an
-    // oversight: they were left on vitest's 10s default while tests got 15s.
-    // The hooks that matter here are the ones deliberately warming an
-    // expensive module graph OUT of a test's budget (e.g.
-    // scheduled-skill-tools.test.ts's beforeAll, which loads the ~208-tool
-    // TOOL_CATALOG) — that work is exactly as contention-sensitive as the
-    // test it was hoisted out of, so capping it lower just moved the flake
-    // from the test to the hook. Observed red on CI 2026-09-01 (build 29866)
-    // on a commit that did not touch that file or its imports.
+    // Hooks get the same CI headroom as tests, for the same reason: a hook
+    // that warms an expensive module graph out of a test's budget is exactly
+    // as contention-sensitive as the test it was hoisted out of, so capping it
+    // lower just moves the flake from the test to the hook.
     hookTimeout: isCI ? 15_000 : 10_000,
     teardownTimeout: 30_000,
     coverage: {

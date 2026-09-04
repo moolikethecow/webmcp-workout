@@ -1,0 +1,313 @@
+version: 2.1
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Spot (webmcp-workout) CI
+#
+#   test            x86 node executor + a throwaway Postgres service container.
+#                   The Postgres is not optional decoration: the two tests that
+#                   prove the product's central claim — one visitor cannot see
+#                   another's data — are `describe.skipIf(!DATABASE_URL)` and
+#                   silently vanish without it. Running them here is the whole
+#                   reason this job has a database.
+#   build-and-push  NATIVE arm64 (arm.medium machine executor) → GHCR, tagged
+#                   with the full commit SHA.
+#   request-deploy  rewrites the image pin in mootoo-cloud and merges it, which
+#                   is what actually rolls spot.mootoo.co.
+#
+# Merging main IS deploying, the same contract stark and nomad-dashboard have.
+# Before this pipeline existed every deploy was hand-driven from a laptop —
+# `docker build --platform linux/arm64` → `docker push` → hand-edit the pin in
+# mootoo-cloud → PR → merge. Five manual steps with no test gate in front of
+# them, on one machine, which is why the app shipped for two days with a Body
+# tab whose API routes did not exist.
+#
+# Production is the OCI VM.Standard.A1.Flex box (ARM64/Ampere) owned by the
+# mootoo-cloud repo. Nothing here SSHes anywhere: mootoo-cloud's Ansible is the
+# only thing that touches the host.
+# ═════════════════════════════════════════════════════════════════════════════
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 1: typecheck, lint, and the full vitest suite against a real Postgres.
+  #
+  # x86 on purpose: the suite is architecture-independent and x86 is the cheaper
+  # class. The arm64 build is exercised for real by build-and-push below, which
+  # is the arch check that matters.
+  #
+  # `large` = 4 vCPU, and vitest.config.ts caps maxForks to the same number.
+  # Those two are coupled: a docker executor reports the HOST's core count via
+  # os.cpus(), so an uncapped (or over-capped) vitest over-forks and worker IPC
+  # times out. Change one, change the other.
+  # ───────────────────────────────────────────────────────────────────────────
+  test:
+    docker:
+      - image: cimg/node:22.14
+      - image: cimg/postgres:16.4
+        environment:
+          POSTGRES_USER: spot
+          POSTGRES_PASSWORD: spot
+          POSTGRES_DB: spot_test
+    resource_class: large
+    working_directory: ~/spot
+
+    environment:
+      # Points at the service container above and dies with the job. A CI
+      # fixture, not a secret — the app's own provisioner creates every schema
+      # and seeds it with the fictional athlete, so nothing real is ever here.
+      DATABASE_URL: postgres://spot:spot@localhost:5432/spot_test
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-pnpm-{{ checksum "pnpm-lock.yaml" }}
+            - v1-pnpm-
+
+      - run:
+          name: Install dependencies
+          command: |
+            set -euo pipefail
+            corepack enable
+            corepack prepare pnpm@9.15.0 --activate
+            pnpm config set store-dir ~/.pnpm-store
+            pnpm install --frozen-lockfile
+
+      - save_cache:
+          key: v1-pnpm-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - ~/.pnpm-store
+
+      - run:
+          name: Wait for Postgres to accept TCP connections
+          # Deliberately a TCP connect, not pg_isready over a socket: the
+          # postgres entrypoint runs a temporary socket-only server while it
+          # initialises the data directory, so a socket probe goes green BEFORE
+          # the real server is listening on 5432. `pg` is already installed as
+          # an app dependency, so this needs no extra package.
+          command: |
+            set -euo pipefail
+            for i in $(seq 1 60); do
+              if node -e "
+                const {Client} = require('pg');
+                const c = new Client({connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 3000});
+                c.connect().then(() => c.end()).then(() => process.exit(0)).catch(() => process.exit(1));
+              " 2>/dev/null; then
+                echo "Postgres ready after ${i}s"
+                exit 0
+              fi
+              sleep 1
+            done
+            echo "Postgres did not accept TCP connections within 60s" >&2
+            exit 1
+
+      - run:
+          name: Typecheck
+          # `next build` does not typecheck test files and vitest does not
+          # typecheck at all, so this is the only gate that reads them.
+          command: pnpm typecheck
+
+      - run:
+          name: Lint
+          command: pnpm lint
+
+      - run:
+          name: Test suite (live Postgres included)
+          command: |
+            set -euo pipefail
+            mkdir -p test-results
+            pnpm vitest run \
+              --reporter=default \
+              --reporter=junit \
+              --outputFile.junit=test-results/junit.xml
+
+      - run:
+          name: Assert the live-Postgres tests actually ran
+          # The live tests skip THEMSELVES when DATABASE_URL is unset, and a
+          # skipped test is a green test: without this step, losing the service
+          # container or the URL would leave the job passing while the isolation
+          # claim goes unchecked.
+          #
+          # It asserts skipped="0", not merely that the file appears — vitest
+          # reports a fully skipped file as tests="3" skipped="3", so a
+          # presence check passes on exactly the run this is meant to catch.
+          command: |
+            set -euo pipefail
+            FOUND=0
+            for f in live-isolation live-concurrent-first-touch; do
+              LINE=$(grep -o "<testsuite name=\"src/lib/workspace/__tests__/${f}.test.ts\"[^>]*>" test-results/junit.xml || true)
+              if [ -z "$LINE" ]; then
+                echo "ERROR: ${f} is missing from the JUnit report entirely." >&2
+                exit 1
+              fi
+              if ! echo "$LINE" | grep -q 'skipped="0"'; then
+                echo "ERROR: ${f} was SKIPPED — DATABASE_URL or the postgres service" >&2
+                echo "container has drifted, so workspace isolation is no longer being" >&2
+                echo "verified by this pipeline. The line: ${LINE}" >&2
+                exit 1
+              fi
+              FOUND=$((FOUND + 1))
+            done
+            echo "live-Postgres suites ran and were not skipped (${FOUND}/2)"
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
+          destination: test-results
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 2: build a native linux/arm64 image and push it SHA-tagged to GHCR.
+  #
+  # `machine` + `resource_class: arm.medium` is a real Ampere host, so this is a
+  # NATIVE compile — no QEMU. Single-arch on purpose: the image only ever runs
+  # on the ARM64 OCI box and on Apple Silicon laptops (also arm64), so a
+  # multi-arch manifest would double build time to serve nobody.
+  #
+  # The arch assertions either side of the build are not paranoia — an amd64
+  # image pushed here fails the deploy in a way that leaves the OLD container
+  # serving healthy, so the mistake is invisible until someone wonders why the
+  # fix did not ship.
+  # ───────────────────────────────────────────────────────────────────────────
+  build-and-push:
+    machine:
+      image: ubuntu-2404:current
+      docker_layer_caching: true
+    resource_class: arm.medium
+    working_directory: ~/spot
+
+    environment:
+      IMAGE: ghcr.io/moolikethecow/webmcp-workout
+
+    steps:
+      - checkout
+
+      - run:
+          name: Confirm the builder really is arm64
+          command: |
+            set -euo pipefail
+            ARCH="$(uname -m)"
+            echo "Builder architecture: ${ARCH}"
+            if [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "arm64" ]; then
+              echo "ERROR: expected an arm64 builder but got '${ARCH}'." >&2
+              echo "Check that resource_class is still arm.medium." >&2
+              exit 1
+            fi
+
+      - run:
+          name: Log in to GHCR
+          # GHCR_USER / GHCR_TOKEN are project-level env vars (same pair the
+          # stark project carries). Retried because a transient 5xx here would
+          # otherwise fail an otherwise-green build.
+          command: |
+            set -euo pipefail
+            for attempt in 1 2 3; do
+              if echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin; then
+                exit 0
+              fi
+              delay=$((attempt * 5))
+              echo "GHCR login attempt ${attempt} failed; retrying in ${delay}s"
+              sleep "$delay"
+            done
+            echo "GHCR login failed after 3 attempts" >&2
+            exit 1
+
+      - run:
+          name: Build linux/arm64 image
+          # APP_BUILD is what /api/health reports back, so "is the fix live?" is
+          # answerable without guessing. --platform is redundant on a native
+          # arm64 host but is left explicit so a wrong resource class fails here
+          # rather than on the OCI box.
+          command: |
+            set -euo pipefail
+            docker build \
+              --platform linux/arm64 \
+              --build-arg APP_BUILD="${CIRCLE_SHA1}" \
+              -t "${IMAGE}:${CIRCLE_SHA1}" \
+              .
+
+      - run:
+          name: Assert the built image is linux/arm64
+          command: |
+            set -euo pipefail
+            GOT="$(docker image inspect "${IMAGE}:${CIRCLE_SHA1}" --format '{{.Os}}/{{.Architecture}}')"
+            echo "Built image platform: ${GOT}"
+            if [ "$GOT" != "linux/arm64" ]; then
+              echo "ERROR: image is ${GOT}, expected linux/arm64. Refusing to push." >&2
+              exit 1
+            fi
+
+      - run:
+          name: Push SHA-tagged image
+          # SHA tag ONLY. mootoo-cloud's standing rule is pinned versions, and a
+          # floating rolling tag is what makes "which image is actually running?"
+          # unanswerable.
+          command: |
+            set -euo pipefail
+            docker push "${IMAGE}:${CIRCLE_SHA1}"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 3: request-deploy — the seam between "image in GHCR" and "running on
+  # spot.mootoo.co".
+  #
+  # scripts/cross-repo-deploy.sh rewrites the single image pin in mootoo-cloud's
+  # stacks/webmcp-workout/docker-compose.yml, opens a per-SHA PR, waits for that
+  # PR's CI, and merges it; mootoo-cloud's deploy-changed workflow then rolls
+  # the stack with Ansible. A pin-only diff takes the change-aware bring-up's
+  # `recreate: auto` path, so the stack's Postgres — every visitor's workspace —
+  # is NOT bounced by an app deploy.
+  #
+  # Credentials come from the org-level `mootoo-cloud` context
+  # (MOOTOO_CLOUD_PAT + MOOTOO_CLOUD_CCI_TOKEN), the same one stark and nomad
+  # use. Nothing new is minted for this repo.
+  # ───────────────────────────────────────────────────────────────────────────
+  request-deploy:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    working_directory: ~/spot
+    steps:
+      - checkout
+      - run:
+          name: Install gh CLI
+          # cimg/base ships git/curl/jq but not gh. Same apt-keyring install
+          # stark's and nomad's request-deploy use.
+          command: |
+            set -euo pipefail
+            sudo install -m 0755 -d /etc/apt/keyrings
+            curl --connect-timeout 30 --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
+              https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+              | sudo dd of=/etc/apt/keyrings/githubcli-archive-keyring.gpg status=none
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+              | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+            sudo apt-get update -qq && sudo apt-get install -y -qq gh
+            gh --version
+      - run:
+          name: Cross-repo deploy (pin bump → PR → merge → ansible)
+          command: bash scripts/cross-repo-deploy.sh
+
+workflows:
+  test-and-deploy:
+    jobs:
+      # Every commit, every branch, no secrets needed.
+      - test
+
+      # arm64 image is published only from main, only after the suite is green.
+      - build-and-push:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+
+      # …and once it exists in GHCR, the pin bump ships it. Main-only by double
+      # guard: the filter here AND the branch check inside the script.
+      - request-deploy:
+          requires:
+            - build-and-push
+          context: mootoo-cloud
+          filters:
+            branches:
+              only: main

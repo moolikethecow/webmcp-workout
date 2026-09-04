@@ -11,7 +11,7 @@
 
 **Project name:** Spot — a WebMCP-native training partner
 **Tagline:** Your agent spots you. It changes what's next; it can't touch what you've already lifted.
-**Live URL:** https://spot.mootoo.co (no login; every visitor gets a private seeded workspace). gym.mootoo.co still serves the same app as a fallback if anything about spot regresses before you submit.
+**Live URL:** https://spot.mootoo.co (no login; every visitor gets a private seeded workspace). gym.mootoo.co, the host this was built on, redirects there — old links keep working, but there is only one live copy of the app.
 **Repo:** https://github.com/moolikethecow/webmcp-workout (AGPL-3.0)
 
 ## Why this use case is a strong fit for WebMCP

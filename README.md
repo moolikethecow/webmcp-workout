@@ -6,7 +6,7 @@
 
 Most AI fitness tools generate text about a workout. Here the workout itself is the shared artifact: the logger you tap through at the gym and the tools an agent calls both read and write one canonical, versioned session. The human logs sets. The agent restructures what's left, within the app's rules.
 
-> Live demo: **https://spot.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's built-in browser or in Chrome 149+ and the page's tools register automatically; the panel on `/` says whether they did, and what to open if they did not. (The earlier **gym.mootoo.co** points at the same app if you have that link.)
+> Live demo: **https://spot.mootoo.co** — no login. Every visitor gets a private workspace seeded with a fictional athlete's six weeks of training. Open it in ChatGPT's built-in browser or in Chrome 149+ and the page's tools register automatically; the panel on `/` says whether they did, and what to open if they did not. (The earlier **gym.mootoo.co** redirects here — it was the host while this was being built.)
 
 ## Try this
 

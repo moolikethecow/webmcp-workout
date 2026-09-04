@@ -83,8 +83,16 @@ const STATE_LABEL: Record<State, string> = {
   untrained: 'No data',
 }
 
+/** A date-only string ("2026-09-03") parsed bare is UTC midnight, which renders
+ *  as the PREVIOUS day anywhere west of Greenwich. Anchor it to local midnight. */
 const fmtDate = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) : '—'
+  d
+    ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T00:00:00` : d).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : '—'
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1))
 
 // Keep Gym's canonical body figure at the same useful size as the Health Body

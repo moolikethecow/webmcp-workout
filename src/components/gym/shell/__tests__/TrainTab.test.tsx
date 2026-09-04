@@ -129,12 +129,14 @@ describe('TrainTab', () => {
     expect(screen.getByLabelText('Workout name')).toHaveValue('Push Day')
   })
 
-  it('Finish is disabled when no set is completed', async () => {
+  it('Finish stays available with nothing logged, and says so', async () => {
+    // A session can end for reasons unrelated to what got logged. The button
+    // stays live and names the state rather than trapping the user.
     storeState.current = makeStore(ACTIVE)
     const { default: TrainTab } = await import('../TrainTab')
     render(<TrainTab />)
-    const finish = await screen.findByRole('button', { name: /finish/i })
-    expect(finish).toBeDisabled()
+    const finish = await screen.findByRole('button', { name: /finish workout \(nothing logged\)/i })
+    expect(finish).toBeEnabled()
   })
 
   it('cancels via the overflow menu and describes soft-discard honestly', async () => {

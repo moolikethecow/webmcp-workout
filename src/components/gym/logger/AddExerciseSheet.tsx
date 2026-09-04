@@ -56,6 +56,16 @@ export function AddExerciseSheet({
   })
   const [adding, setAdding] = useState<string | null>(null)
 
+  // Escape closes the sheet. The scrim and the X already did; a keyboard felt
+  // trapped without this.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   // Fetch real pages instead of repeatedly raising `limit`: the API caps one
   // response at 200 rows, while the production catalog is much larger. Offset
   // paging keeps every eligible exercise reachable without re-downloading the

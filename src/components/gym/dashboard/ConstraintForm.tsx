@@ -112,6 +112,10 @@ export default function ConstraintForm({ onAdded }: { onAdded: () => void | Prom
           // which is also the better record of what was just confirmed. A
           // person who typed them gets a cleared form.
           if (!fromAgent) form.reset()
+          // The write is done. Un-busy the button BEFORE the refresh: a slow or
+          // never-settling refetch used to leave it stuck on "Adding…" with the
+          // constraint already recorded.
+          setBusy(false)
           await onAdded()
           if (fromAgent) {
             afterMutation('report_training_constraint', `Added a ${values.severity} constraint on ${named}.`)

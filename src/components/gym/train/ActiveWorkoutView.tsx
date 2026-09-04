@@ -68,9 +68,12 @@ export function ActiveWorkoutView({
   const [tuned, setTuned] = useState(false)
   const chrome = useAppChromeBounds()
 
-  // Zero completed sets → can't finish (Strong's rule; the button explains why).
+  // Finishing is always allowed. A session can end for reasons that have nothing
+  // to do with what got logged — the gym closes, someone is hurt, the warm-up
+  // said no — and trapping a person in a workout they cannot close is worse than
+  // an honest empty session.
   const completedSets = useMemo(() => countCompletedSets(workout), [workout])
-  const canFinish = completedSets > 0
+  const canFinish = true
 
   // Tune-for-today is offered only for a template-started workout that hasn't been
   // tuned yet (GYM_PLAN §2.7 — coach adjustments applied to a template in place).
@@ -271,8 +274,8 @@ export function ActiveWorkoutView({
           type="button"
           onClick={() => void handleFinish()}
           disabled={!canFinish || finishing}
-          title={canFinish ? undefined : 'Log at least one set to finish'}
-          aria-label={canFinish ? 'Finish workout' : 'Finish (log at least one set first)'}
+          title={completedSets > 0 ? undefined : 'Finish with nothing logged'}
+          aria-label={completedSets > 0 ? 'Finish workout' : 'Finish workout (nothing logged)'}
           style={{
             ...finishBtn,
             opacity: canFinish && !finishing ? 1 : 0.5,

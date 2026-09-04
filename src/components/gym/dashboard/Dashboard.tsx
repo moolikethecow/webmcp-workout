@@ -197,6 +197,18 @@ export default function Dashboard() {
                       Review and start
                     </Link>
                   </>
+                ) : completedToday(data.sessions) ? (
+                  <>
+                    <MonoLabel>Done today</MonoLabel>
+                    <p style={headline}>{completedToday(data.sessions)?.name ?? 'Workout'}</p>
+                    <p style={note}>
+                      {completedToday(data.sessions)?.setCount} set
+                      {completedToday(data.sessions)?.setCount === 1 ? '' : 's'} logged. Nothing running now.
+                    </p>
+                    <Link href="/gym" style={cta}>
+                      Start another
+                    </Link>
+                  </>
                 ) : (
                   <>
                     <MonoLabel>Nothing running</MonoLabel>
@@ -228,7 +240,7 @@ export default function Dashboard() {
                           {session.name ?? 'Workout'}
                         </span>
                         <span style={meta}>
-                          {shortDate(session.date)} · {session.setCount} sets ·{' '}
+                          {shortDate(session.date)} · {session.setCount} set{session.setCount === 1 ? '' : 's'} ·{' '}
                           {Math.round(session.volume ?? 0).toLocaleString()} {data.weightUnit}
                         </span>
                       </div>
@@ -267,6 +279,20 @@ export default function Dashboard() {
                           {constraint.label?.trim() || INJURY_SITE_LABELS[constraint.region] || constraint.region}
                         </span>
                         <span style={meta}>{constraint.severity ?? 'noted'}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void (async () => {
+                              await fetch(`/api/gym/injuries/${constraint.id}`, { method: 'DELETE' })
+                              await load()
+                            })()
+                          }}
+                          title="Remove this constraint"
+                          aria-label={`Remove ${constraint.label?.trim() || INJURY_SITE_LABELS[constraint.region] || constraint.region}`}
+                          style={removeBtn}
+                        >
+                          ×
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -285,6 +311,28 @@ export default function Dashboard() {
 }
 
 /** 'Mar 4' — terse, no year unless it isn't this one. */
+/** The session completed today, if any. A finished workout used to leave the
+ *  card reading "No session yet today" while Recent training listed it directly
+ *  below — the page contradicting itself. */
+function completedToday(sessions: SessionSummary[]): SessionSummary | null {
+  const now = new Date()
+  const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  return sessions.find((session) => String(session.date).slice(0, 10) === key) ?? null
+}
+
+const removeBtn: React.CSSProperties = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: 15,
+  lineHeight: 1,
+  color: 'var(--fg-subtle)',
+  background: 'none',
+  border: 'none',
+  padding: '2px 4px',
+  marginLeft: 6,
+  cursor: 'pointer',
+  flexShrink: 0,
+}
+
 function shortDate(iso: string): string {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return '—'

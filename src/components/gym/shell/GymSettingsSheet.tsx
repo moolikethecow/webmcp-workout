@@ -191,12 +191,12 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
             })}
             style={{ ...controlStyle, width: '100%', minHeight: 44 }}
           >
-            <option value="app">Follow App Settings ({settings?.app_weight_unit ?? 'lb'})</option>
+            <option value="app">Follow app default ({settings?.app_weight_unit ?? 'lb'})</option>
             <option value="lb">Pounds (lb)</option>
             <option value="kg">Kilograms (kg)</option>
           </select>
           <p style={helpStyle}>
-            Gym only. The active logger, templates, history, records, and plate calculator use {unit}. This does not change Health or Nutrition.
+            The active logger, templates, history, records and plate calculator all use {unit}.
           </p>
         </Row>
 
@@ -212,7 +212,7 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
             })}
             style={{ ...controlStyle, width: '100%', minHeight: 44 }}
           >
-            <option value="app">Follow App Settings ({settings?.app_distance_unit ?? 'mi'})</option>
+            <option value="app">Follow app default ({settings?.app_distance_unit ?? 'mi'})</option>
             <option value="mi">Miles · min/mi</option>
             <option value="km">Kilometres · min/km</option>
             <option value="m">Metres · min/km</option>
@@ -246,7 +246,6 @@ export default function GymSettingsSheet({ open, onClose }: { open: boolean; onC
             <span style={{ fontSize: 12, color: 'var(--fg-subtle)' }}>seconds</span>
           </div>
           <p style={helpStyle}>Fallback rest between sets when a template or exercise doesn’t set its own.</p>
-          <p style={helpStyle}>Keep your screen on during workouts for rest alerts.</p>
         </Row>
 
         {/* My Gyms editor (P3) */}

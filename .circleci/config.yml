@@ -124,21 +124,32 @@ jobs:
 
       - run:
           name: Assert the live-Postgres tests actually ran
-          # The live tests skip themselves when DATABASE_URL is unset, and a
-          # skipped test is a green test. If the service container or the URL
-          # ever drifts, this job would keep passing while the isolation claim
-          # goes unchecked — so fail loudly instead.
+          # The live tests skip THEMSELVES when DATABASE_URL is unset, and a
+          # skipped test is a green test: without this step, losing the service
+          # container or the URL would leave the job passing while the isolation
+          # claim goes unchecked.
+          #
+          # It asserts skipped="0", not merely that the file appears — vitest
+          # reports a fully skipped file as tests="3" skipped="3", so a
+          # presence check passes on exactly the run this is meant to catch.
           command: |
             set -euo pipefail
-            if grep -q 'live-isolation' test-results/junit.xml \
-               && ! grep -qE '<testsuite[^>]*name="[^"]*live-isolation[^"]*"[^>]*tests="0"' test-results/junit.xml; then
-              echo "live-Postgres suite ran"
-            else
-              echo "ERROR: the live-Postgres tests did not run — DATABASE_URL or the" >&2
-              echo "postgres service container has drifted, and workspace isolation is" >&2
-              echo "no longer being verified by this pipeline." >&2
-              exit 1
-            fi
+            FOUND=0
+            for f in live-isolation live-concurrent-first-touch; do
+              LINE=$(grep -o "<testsuite name=\"src/lib/workspace/__tests__/${f}.test.ts\"[^>]*>" test-results/junit.xml || true)
+              if [ -z "$LINE" ]; then
+                echo "ERROR: ${f} is missing from the JUnit report entirely." >&2
+                exit 1
+              fi
+              if ! echo "$LINE" | grep -q 'skipped="0"'; then
+                echo "ERROR: ${f} was SKIPPED — DATABASE_URL or the postgres service" >&2
+                echo "container has drifted, so workspace isolation is no longer being" >&2
+                echo "verified by this pipeline. The line: ${LINE}" >&2
+                exit 1
+              fi
+              FOUND=$((FOUND + 1))
+            done
+            echo "live-Postgres suites ran and were not skipped (${FOUND}/2)"
 
       - store_test_results:
           path: test-results
